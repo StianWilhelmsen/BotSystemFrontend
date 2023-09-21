@@ -8,6 +8,9 @@
             <input type="text"
             id="search-input"
             placeholder="Søk etter navn"
+            v-model="searchQuery"
+            @input="handleSearchInput"
+            @click="showUserList = true"
             >
             <button class="fine-button" @click="openModal">Meld bot</button>
         </div>
@@ -134,7 +137,6 @@ export default {
       try {
         const response = await axios.get(store.apiPort +"/api/fine/getFines");
         fines.value = response.data;
-        console.log(response.data)
       } catch (error) {
         console.error("Error retrieving fines", error);
       }
@@ -142,7 +144,6 @@ export default {
 
     function showFineDetails(fine) {
       selectedFine.value = fine;
-      console.log(selectedFine.value)
     }
 
     function hideFineDetails() {
@@ -197,7 +198,6 @@ export default {
     try {
         const formData = new FormData();
 
-        // Append all the details
         formData.append('issuer', JSON.stringify({
             firstname: store.firstname,
             lastname: store.lastname
@@ -211,7 +211,6 @@ export default {
         formData.append('description', description.value);
         formData.append('timestamp', timestamp);
 
-        // Append the image
         if (imageFile.value) {
             formData.append('image', imageFile.value);
         }
@@ -221,7 +220,6 @@ export default {
                 'Content-Type': 'multipart/form-data'
             }
         });
-        console.log('Fine saved successfully:', response.data);
         statusText.value = "Bot meldt inn";
         retrieveFines()
         setTimeout(() => {

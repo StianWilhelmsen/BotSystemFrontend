@@ -58,7 +58,6 @@
           email: email.value,
           password: password.value
         };
-        console.log(user)
 
         axios.post(store.apiPort + '/api/users/register', user)
           .then(response => {

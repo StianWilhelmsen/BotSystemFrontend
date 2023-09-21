@@ -60,11 +60,9 @@ export default {
         const lastName = response.data.lastname;
 
         localStorage.setItem('jwtToken', token);
-        console.log(response.data)
         store.isLoggedIn = true;
         store.firstname = firstName;
         store.lastname = lastName;
-        console.log(store.lastname)
 
         router.push('/dashboard');
       } catch (error) {
