@@ -30,6 +30,8 @@
   import axios from 'axios';
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
+  import store from '@/store.js';
+
   
   export default {
     setup() {
@@ -58,7 +60,7 @@
         };
         console.log(user)
 
-        axios.post('https://beerfine-lads-4c3ab486ace8.herokuapp.com/api/users/register', user)
+        axios.post(store.apiPort + '/api/users/register', user)
           .then(response => {
             console.log('Registration success', response.data);
             statusText.value = response.data;
