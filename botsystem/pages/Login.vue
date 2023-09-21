@@ -50,7 +50,7 @@ export default {
 
     async function login() {
       try {
-        const response = await axios.post('http://localhost:8080/api/users/login', {
+        const response = await axios.post(store.apiPort + '/api/users/login', {
           email: email.value,
           password: password.value,
         });

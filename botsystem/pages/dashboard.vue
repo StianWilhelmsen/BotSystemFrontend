@@ -132,7 +132,7 @@ export default {
 
     async function retrieveFines() {
       try {
-        const response = await axios.get("https://beerfine-lads-4c3ab486ace8.herokuapp.com/api/fine/getFines");
+        const response = await axios.get(store.apiPort +"/api/fine/getFines");
         fines.value = response.data;
         console.log(response.data)
       } catch (error) {
@@ -151,7 +151,7 @@ export default {
 
     async function retrieveFineTypes() {
       try {
-        const response = await axios.get("http://localhost:8080/api/fine/fineTypes");
+        const response = await axios.get(store.apiPort + "/api/fine/fineTypes");
         fineTypes.value = response.data;
       } catch (error) {
         console.error("Error retrieving fine types:", error);
@@ -160,7 +160,7 @@ export default {
 
     async function retrieveUsers() {
       try {
-        const response = await axios.get("http://localhost:8080/api/users/getUsers");
+        const response = await axios.get(store.apiPort +"/api/users/getUsers");
         userList.value = response.data;
       } catch (error) {
         console.error("Error retrieving users", error);
@@ -216,7 +216,7 @@ export default {
             formData.append('image', imageFile.value);
         }
 
-        const response = await axios.post('http://localhost:8080/api/fine/postFine', formData, {
+        const response = await axios.post(store.apiPort+'/api/fine/postFine', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
