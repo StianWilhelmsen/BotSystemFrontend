@@ -58,7 +58,7 @@
         };
         console.log(user)
 
-        axios.post('https://beerfine-lads-4c3ab486ace8.herokuapp.com:6969/api/users/register', user)
+        axios.post('https://beerfine-lads-4c3ab486ace8.herokuapp.com/api/users/register', user)
           .then(response => {
             console.log('Registration success', response.data);
             statusText.value = response.data;
