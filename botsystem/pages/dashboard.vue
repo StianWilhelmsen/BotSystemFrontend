@@ -132,7 +132,7 @@ export default {
 
     async function retrieveFines() {
       try {
-        const response = await axios.get("http://localhost:8080/api/fine/getFines");
+        const response = await axios.get("https://beerfine-lads-4c3ab486ace8.herokuapp.com/api/fine/getFines");
         fines.value = response.data;
         console.log(response.data)
       } catch (error) {
