@@ -250,7 +250,6 @@ function hideFineDetails(fine) {
       statusText,
       fines,
       selectedFine,
-      showFineDetails,
       hideFineDetails,
       formatTimestamp,
       handleImageUpload,
