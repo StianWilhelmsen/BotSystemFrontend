@@ -5,25 +5,21 @@
     </div>
     <div class="main-container">
         <div class="search-fine-wrapper">
-            <input type="text"
-            id="search-input"
-            placeholder="Søk etter navn"
-            >
             <button class="fine-button" @click="openModal">Meld bot</button>
-        </div>
-        <div v-if="selectedFine" class="fine-details">
-          <h4>{{ selectedFine.recipient.firstname }} {{ selectedFine.recipient.lastname }} {{ selectedFine.weight }}</h4>
-          <h5>Gitt av: {{ selectedFine.issuer.firstname }} {{ selectedFine.issuer.lastname }}</h5>
-          <p>Begrunnelse: {{ selectedFine.description }}</p>
-          <img :src="'data:image/jpeg;base64,' + selectedFine.image" alt="Ingen bildebevis funnet" class="fine-image" />
-          <button @click="hideFineDetails">Skjul detaljer</button>
         </div>
         <div class="fines-container">
           <ul>
-            <li v-for="fine in fines" :key="fine.id" @click="showFineDetails(fine)">
-              <div class="fine-item">
+            <li v-for="fine in fines" :key="fine.id">
+              <div class="fine-item" @click="toggleFineDetails(fine)">
                 <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
+              </div>
+              <div v-if="fine.showDetails" class="fine-details">
+                <h4>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} {{ fine.weight }}</h4>
+                <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
+                <p>Begrunnelse: {{ fine.description }}</p>
+                <img :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
+                <button @click="hideFineDetails(fine)">Skjul detaljer</button>
               </div>
             </li>
           </ul>
@@ -139,13 +135,13 @@ export default {
       }
     }
 
-    function showFineDetails(fine) {
-      selectedFine.value = fine;
-    }
+    function toggleFineDetails(fine) {
+  fine.showDetails = !fine.showDetails;
+}
 
-    function hideFineDetails() {
-      selectedFine.value = null;
-    }
+function hideFineDetails(fine) {
+  fine.showDetails = false;
+}
 
     async function retrieveFineTypes() {
       try {
@@ -257,7 +253,8 @@ export default {
       showFineDetails,
       hideFineDetails,
       formatTimestamp,
-      handleImageUpload
+      handleImageUpload,
+      toggleFineDetails
     };
   },
 };
