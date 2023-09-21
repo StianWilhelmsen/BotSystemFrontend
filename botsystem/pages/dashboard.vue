@@ -8,9 +8,6 @@
             <input type="text"
             id="search-input"
             placeholder="Søk etter navn"
-            v-model="searchQuery"
-            @input="handleSearchInput"
-            @click="showUserList = true"
             >
             <button class="fine-button" @click="openModal">Meld bot</button>
         </div>
@@ -187,12 +184,17 @@ export default {
     }
 
     function selectUser(user) {
-        const [first, last] = user.split(' ');
-        recipientFirstname.value = first;
-        recipientLastname.value = last;
-        searchQuery.value = user;
-        showUserList.value = false;
+    const names = user.split(' ');
+    if(names.length > 1) {
+        recipientFirstname.value = names.slice(0, -1).join(' ');
+        recipientLastname.value = names[names.length - 1]; 
+    } else {
+        recipientFirstname.value = names[0]; 
+        recipientLastname.value = ''; 
     }
+    searchQuery.value = user;
+    showUserList.value = false;
+}
 
     async function postFine() {
     try {
