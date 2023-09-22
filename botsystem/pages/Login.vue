@@ -47,10 +47,11 @@ export default {
     const password = ref('');
     const router = useRouter();
     const isAutofilled = ref(false);
+    const apiPort = ref('')
 
     async function login() {
       try {
-        const response = await axios.post(store.apiPort + '/api/users/login', {
+        const response = await axios.post(apiPort + '/api/users/login', {
           email: email.value,
           password: password.value,
         });
@@ -71,6 +72,7 @@ export default {
     }
 
     onMounted(() => {
+      apiPort.value = import.meta.env.API_KEY.trim()
       if (email.value !== '') {
         isAutofilled.value = true;
       }

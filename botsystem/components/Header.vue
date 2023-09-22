@@ -28,7 +28,6 @@ export default {
 
     function goHome() {
       if (store.isLoggedIn) {
-        console.log(store.isLoggedIn)
         router.push('/dashboard')
       } else {
         router.push('/');
@@ -42,7 +41,6 @@ export default {
     }
 
     function toggle() {
-      console.log(isOpen.value)
       isOpen.value = !isOpen.value;
       showMenu.value = !showMenu.value;
     }
