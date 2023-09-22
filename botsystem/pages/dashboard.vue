@@ -116,14 +116,14 @@ export default {
 
 
     
-    function formatTimestamp(timestamp) {
-      if (timestamp) {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        const formattedDate = new Date(timestamp).toLocaleString('en-US', options);
-        return formattedDate;
-      }
-      return '';
-    }
+function formatTimestamp(timestamp) {
+  if (timestamp) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const formattedDate = new Date(timestamp).toLocaleString('en-GB', options);
+    return formattedDate;
+  }
+  return '';
+}
 
 
     async function retrieveFines() {
@@ -287,12 +287,17 @@ function hideFineDetails(fine) {
   cursor: pointer;
   max-height: 50vh;
   overflow-y: auto;
+  min-width: 30vh;
 }
 
 .fines-container li {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.fines-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
 }
 
 .fine-details {
@@ -447,6 +452,7 @@ function hideFineDetails(fine) {
 
 .main-container {
     display: flex;
+    width: 40vh;
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
