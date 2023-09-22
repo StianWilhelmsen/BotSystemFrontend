@@ -95,6 +95,8 @@ export default {
     const selectedFine = ref(null)
     const timestamp = new Date().toISOString();
     const imageFile = ref(null);
+    const apiPort = ref(import.meta.env.VITE_API_KEY);
+
 
     function handleImageUpload(event) {
     imageFile.value = event.target.files[0];
@@ -126,7 +128,7 @@ export default {
 
     async function retrieveFines() {
   try {
-    const response = await axios.get(store.apiPort +"/api/fine/getFines");
+    const response = await axios.get(apiPort.value +"/api/fine/getFines");
     fines.value = response.data.map(fine => ({ ...fine, showDetails: false }));
   } catch (error) {
     console.error("Error retrieving fines", error);
@@ -143,7 +145,7 @@ function hideFineDetails(fine) {
 
     async function retrieveFineTypes() {
       try {
-        const response = await axios.get(store.apiPort + "/api/fine/fineTypes");
+        const response = await axios.get(apiPort.value + "/api/fine/fineTypes");
         fineTypes.value = response.data;
       } catch (error) {
         console.error("Error retrieving fine types:", error);
@@ -152,7 +154,7 @@ function hideFineDetails(fine) {
 
     async function retrieveUsers() {
       try {
-        const response = await axios.get(store.apiPort +"/api/users/getUsers");
+        const response = await axios.get(apiPort.value +"/api/users/getUsers");
         userList.value = response.data;
       } catch (error) {
         console.error("Error retrieving users", error);
@@ -211,7 +213,7 @@ function hideFineDetails(fine) {
             formData.append('image', imageFile.value);
         }
 
-        const response = await axios.post(store.apiPort+'/api/fine/postFine', formData, {
+        const response = await axios.post(apiPort+'/api/fine/postFine', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

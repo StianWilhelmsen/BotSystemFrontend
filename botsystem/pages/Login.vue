@@ -48,7 +48,6 @@ export default {
     const router = useRouter();
     const isAutofilled = ref(false);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
-    console.log('API Key:', import.meta.env.VITE_API_KEY);
 
     async function login() {
       try {
