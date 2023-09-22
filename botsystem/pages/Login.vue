@@ -73,6 +73,7 @@ export default {
 
     onMounted(() => {
       apiPort.value = import.meta.env.API_KEY.trim()
+      console.log(apiPort.value)
       if (email.value !== '') {
         isAutofilled.value = true;
       }
