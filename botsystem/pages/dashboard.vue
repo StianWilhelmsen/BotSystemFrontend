@@ -10,16 +10,14 @@
         <div class="fines-container">
           <ul>
             <li v-for="fine in fines" :key="fine.id">
-              <div class="fine-item" @click="toggleFineDetails(fine)">
+              <div :class="{ 'expanded': fine.showDetails }" class="fine-item" @click="toggleFineDetails(fine)">
                 <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
-              </div>
-              <div v-if="fine.showDetails" class="fine-details">
-                <h4>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} {{ fine.weight }}</h4>
-                <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                <p>Begrunnelse: {{ fine.description }}</p>
-                <img :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
-                <button @click="hideFineDetails(fine)">Skjul detaljer</button>
+                <div v-if="fine.showDetails" class="fine-expanded-details">
+                  <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
+                  <p>Begrunnelse: {{ fine.description }}</p>
+                  <img :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
+                </div>
               </div>
             </li>
           </ul>
@@ -127,13 +125,13 @@ export default {
 
 
     async function retrieveFines() {
-      try {
-        const response = await axios.get(store.apiPort +"/api/fine/getFines");
-        fines.value = response.data;
-      } catch (error) {
-        console.error("Error retrieving fines", error);
-      }
-    }
+  try {
+    const response = await axios.get(store.apiPort +"/api/fine/getFines");
+    fines.value = response.data.map(fine => ({ ...fine, showDetails: false }));
+  } catch (error) {
+    console.error("Error retrieving fines", error);
+  }
+}
 
     function toggleFineDetails(fine) {
   fine.showDetails = !fine.showDetails;
@@ -261,6 +259,17 @@ function hideFineDetails(fine) {
 
 <style scoped>
 
+.fine-expanded-details {
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.expanded .fine-expanded-details {
+  max-height: 500px; /* Adjust as needed */
+  opacity: 1;
+}
 .fine-image {
     max-width: 100%;
     height: auto;
@@ -268,12 +277,15 @@ function hideFineDetails(fine) {
 
 .fines-container {
   width: 90%;
+  height: 50vh;
   background-color: #eb940a;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   margin-top: 20px;
   cursor: pointer;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .fines-container li {
