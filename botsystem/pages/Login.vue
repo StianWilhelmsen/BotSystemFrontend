@@ -47,11 +47,11 @@ export default {
     const password = ref('');
     const router = useRouter();
     const isAutofilled = ref(false);
-    const apiPort = ref('')
+    const apiPort = ref(import.meta.env.VITE_API_KEY);
 
     async function login() {
       try {
-        const response = await axios.post(apiPort.value + '/api/users/login', {
+        const response = await axios.post(apiPort + '/api/users/login', {
           email: email.value,
           password: password.value,
         });
@@ -72,8 +72,6 @@ export default {
     }
 
     onMounted(() => {
-      apiPort.value = import.meta.env.API_KEY.trim()
-      console.log(apiPort.value)
       if (email.value !== '') {
         isAutofilled.value = true;
       }
