@@ -41,6 +41,8 @@
       const lastname = ref('');
       const email = ref('');
       const password = ref('');
+      const apiPort = ref(import.meta.env.VITE_API_KEY);
+      
   
  
       function registerUser() {
@@ -59,7 +61,7 @@
           password: password.value
         };
 
-        axios.post(store.apiPort + '/api/users/register', user)
+        axios.post(apiPort.value + '/api/users/register', user)
           .then(response => {
             console.log('Registration success', response.data);
             statusText.value = response.data;

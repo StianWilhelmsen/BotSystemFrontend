@@ -213,7 +213,7 @@ function hideFineDetails(fine) {
             formData.append('image', imageFile.value);
         }
 
-        const response = await axios.post(apiPort+'/api/fine/postFine', formData, {
+        const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -278,7 +278,6 @@ function hideFineDetails(fine) {
 }
 
 .fines-container {
-  width: 90%;
   height: 50vh;
   background-color: #eb940a;
   padding: 20px;
@@ -450,7 +449,6 @@ function hideFineDetails(fine) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 600px; 
     margin: 0 auto;
     padding: 0 20px;
   }
