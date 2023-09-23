@@ -15,6 +15,7 @@
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
                 <div v-if="fine.showDetails" class="fine-expanded-details">
                   <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
+                  <h5>§ {{ fine.fineType.fineName }}</h5>
                   <p>Begrunnelse: {{ fine.description }}</p>
                   <img :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
                 </div>
