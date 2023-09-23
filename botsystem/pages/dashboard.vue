@@ -99,8 +99,14 @@ export default {
     const apiPort = ref(import.meta.env.VITE_API_KEY);
 
 
-    function handleImageUpload(event) {
-    imageFile.value = event.target.files[0];
+    async function handleImageUpload(event) {
+  const file = event.target.files[0];
+  try {
+    const compressedImage = await compressImage(file);
+    imageFile.value = compressedImage;
+  } catch (err) {
+    console.error('Error compressing image', err);
+  }
 }
 
     onBeforeMount(() => {
@@ -126,7 +132,25 @@ function formatTimestamp(timestamp) {
   return '';
 }
 
-
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Sett kvaliteten på bildet, 0.8 er 80% kvalitet
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.8);
+    };
+    img.onerror = (err) => reject(err);
+  });
+}
     async function retrieveFines() {
   try {
     const response = await axios.get(apiPort.value +"/api/fine/getFines");
@@ -211,8 +235,8 @@ function hideFineDetails(fine) {
         formData.append('timestamp', timestamp);
 
         if (imageFile.value) {
-            formData.append('image', imageFile.value);
-        }
+      formData.append('image', imageFile.value);
+    }
 
         const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
             headers: {
@@ -220,6 +244,13 @@ function hideFineDetails(fine) {
             }
         });
         statusText.value = "Bot meldt inn";
+        recipientFirstname.value = '';
+        recipientLastname.value = '';
+        selectedFineType.value = '';
+        weight.value = '';
+        description.value = '';
+        imageFile.value = null;
+        searchQuery.value = '';
         retrieveFines()
         setTimeout(() => {
           closeModal()
