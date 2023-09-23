@@ -525,5 +525,50 @@ input[type="number"] {
   }
 }
 
+@media only screen and (max-width: 600px) {
+  .modal {
+    width: 90%; /* Adjusted width */
+    padding: 10px; /* Adjusted padding */
+  }
+
+  .modal textarea,
+  .modal input,
+  .modal select {
+    width: calc(100% - 20px); /* Adjusted width */
+    font-size: 0.8rem; /* Adjusted font size */
+  }
+
+  .input-row {
+    margin: 15px 0; /* Adjusted margin */
+  }
+
+  .modal-footer button {
+    padding: 8px 16px; /* Adjusted padding */
+  }
+
+  .main-container {
+    width: 100%; /* Adjusted width */
+    padding: 0 10px; /* Adjusted padding */
+  }
+
+  .fines-container {
+    height: 40vh; /* Adjusted height */
+  }
+
+  .welcome-wrapper h1 {
+    font-size: 1.5rem; /* Adjusted font size */
+  }
+
+  .fine-button,
+  .fine-details button {
+    padding: 8px 16px; /* Adjusted padding */
+  }
+
+  .user-list li {
+    padding: 6px 10px; /* Adjusted padding */
+  }
+}
+
+
 
 </style>
