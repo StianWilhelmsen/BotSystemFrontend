@@ -146,7 +146,7 @@ function compressImage(file) {
       ctx.drawImage(img, 0, 0, width, height);
       
       // Sett kvaliteten på bildet, 0.8 er 80% kvalitet
-      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.8);
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.5);
     };
     img.onerror = (err) => reject(err);
   });
