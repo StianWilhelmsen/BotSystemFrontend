@@ -12,6 +12,7 @@
           v-model="email"
           required
           autocomplete="off"
+          @keyup.enter="login"
         >
         <label for="email">Email</label>
       </div>
@@ -23,10 +24,11 @@
           v-model="password"
           required
           autocomplete="off"
+          @keyup.enter="login"
         >
         <label for="password">Password</label>
       </div>
-      <div button-wrapper>
+      <div class="button-wrapper">
         <button @click="login">Login</button>
         <router-link to="/Register">
           <button>Registrer</button>

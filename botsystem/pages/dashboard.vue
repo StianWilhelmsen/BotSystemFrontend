@@ -2,76 +2,23 @@
 <div class="dashboard-wrapper">
     <div class="welcome-wrapper">
         <h1>Velkommen, {{ firstName }}</h1>
+        <div class="menu-navigator">
+          <button @click="currentView = 'fines'" class="menu-item">Bøter</button>
+          <button @click="currentView = 'lovverk'" class="menu-item">Lovverk</button>
     </div>
-    <div class="main-container">
-        <div class="search-fine-wrapper">
-            <button class="fine-button" @click="openModal">Meld bot</button>
-        </div>
-        <div class="fines-container">
-          <ul>
-            <li v-for="fine in fines" :key="fine.id">
-              <div :class="{ 'expanded': fine.showDetails }" class="fine-item" @click="toggleFineDetails(fine)">
-                <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
-                <span>{{ formatTimestamp(fine.timestamp) }}</span>
-                <div v-if="fine.showDetails" class="fine-expanded-details">
-                  <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                  <h5>§ {{ fine.fineType.fineName }}</h5>
-                  <p>Begrunnelse: {{ fine.description }}</p>
-                  <img :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
+    
+    <BotComponent v-if="currentView === 'fines'" />
+    <LovverkComponent v-if="currentView === 'lovverk'" />
     </div>
-
-    <div class="modal" v-if="isModalOpen">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <div class="modal-header">
-          <h2>Bot innmelding</h2>
-        </div>
-        <div class="input-row">
-        <div class="dropdown">
-          <input
-            type="text"
-            placeholder="Hvem har begått lovbruddet"
-            v-model="searchQuery"
-            @input="handleSearchInput"
-            @click="showUserList = true"
-          >
-          <ul class="user-list" v-if="showUserList && searchQuery && filteredUsers.length > 0">
-            <li v-for="user in filteredUsers" :key="user" @click="selectUser(user)">{{ user }}</li>
-          </ul>
-        </div>
-      </div>
-        <div class="input-row">
-            <select id="fineType" v-model="selectedFineType" class="fine-type-select">
-  <option value="" disabled selected>Lovbrudd</option>
-  <option v-for="fineType in fineTypes" :key="fineType.fineType" :value="fineType">{{ fineType }}</option>
-</select>
-        </div>
-        <div class="input-row">
-          <input type="number" placeholder="Vekting" v-model="weight">
-        </div>
-        <div class="input-row">
-          <textarea placeholder="Begrunnelse for bøtelegging" v-model="description"></textarea>
-        </div>
-        <input type="file" accept="image/*" @change="handleImageUpload" />
-        <div class="modal-footer">
-          <button @click="postFine()">Meld inn</button>
-        </div>
-        <p> {{ statusText }}</p>
-      </div>
-    </div>
-    <div class="overlay" v-if="isModalOpen" @click="closeModal"></div>
-</div>
+  </div>
 </template>
 
 <script>
 import { ref, onMounted, computed } from 'vue';
 import store from '@/store.js';
 import axios from 'axios';
+import LovverkComponent from '@/components/LovverkComponent.vue'
+import BotComponent from '@/components/BotComponent.vue'
 
 export default {
 
@@ -81,33 +28,9 @@ export default {
   setup() {
     const router = useRouter();
     const firstName = ref(store.firstname);
-    const recipientFirstname = ref('')
-    const recipientLastname = ref('')
-    const isModalOpen = ref(false);
-    const userList = ref([]);
-    const fineTypes = ref([]);
-    const selectedFineType = ref('');
-    const searchQuery = ref('');
-    const showUserList = ref(false);
-    const weight = ref();
-    const description = ref('');
-    const statusText = ref('')
-    const fines = ref(null);
-    const selectedFine = ref(null)
-    const timestamp = new Date().toISOString();
-    const imageFile = ref(null);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
+    const currentView = ref('fines');
 
-
-    async function handleImageUpload(event) {
-  const file = event.target.files[0];
-  try {
-    const compressedImage = await compressImage(file);
-    imageFile.value = compressedImage;
-  } catch (err) {
-    console.error('Error compressing image', err);
-  }
-}
 
     onBeforeMount(() => {
       if (!store.isLoggedIn) {
@@ -115,177 +38,9 @@ export default {
       }
     });
 
-    onMounted(() => {
-      retrieveUsers();
-      retrieveFineTypes();
-      retrieveFines();
-    });
-
-
-    
-function formatTimestamp(timestamp) {
-  if (timestamp) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    const formattedDate = new Date(timestamp).toLocaleString('en-GB', options);
-    return formattedDate;
-  }
-  return '';
-}
-
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Sett kvaliteten på bildet, 0.8 er 80% kvalitet
-      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.5);
-    };
-    img.onerror = (err) => reject(err);
-  });
-}
-    async function retrieveFines() {
-  try {
-    const response = await axios.get(apiPort.value +"/api/fine/getFines");
-    fines.value = response.data.map(fine => ({ ...fine, showDetails: false }));
-  } catch (error) {
-    console.error("Error retrieving fines", error);
-  }
-}
-
-    function toggleFineDetails(fine) {
-  fine.showDetails = !fine.showDetails;
-}
-
-function hideFineDetails(fine) {
-  fine.showDetails = false;
-}
-
-    async function retrieveFineTypes() {
-      try {
-        const response = await axios.get(apiPort.value + "/api/fine/fineTypes");
-        fineTypes.value = response.data;
-      } catch (error) {
-        console.error("Error retrieving fine types:", error);
-      }
-    }
-
-    async function retrieveUsers() {
-      try {
-        const response = await axios.get(apiPort.value +"/api/users/getUsers");
-        userList.value = response.data;
-      } catch (error) {
-        console.error("Error retrieving users", error);
-      }
-    }
-
-    function openModal() {
-        isModalOpen.value = true;
-    }
-
-    function closeModal() {
-        isModalOpen.value = false;
-    }
-
-    const filteredUsers = computed(() => {
-        const query = searchQuery.value.trim().toLowerCase();
-        if (!query) return userList.value;
-        return userList.value.filter(user => user.toLowerCase().includes(query));
-    });
-
-    function handleSearchInput(event) {
-        searchQuery.value = event.target.value;
-    }
-
-    function selectUser(user) {
-    const names = user.split(' ');
-    if(names.length > 1) {
-        recipientFirstname.value = names.slice(0, -1).join(' ');
-        recipientLastname.value = names[names.length - 1]; 
-    } else {
-        recipientFirstname.value = names[0]; 
-        recipientLastname.value = ''; 
-    }
-    searchQuery.value = user;
-    showUserList.value = false;
-}
-
-    async function postFine() {
-    try {
-        const formData = new FormData();
-
-        formData.append('issuer', JSON.stringify({
-            firstname: store.firstname,
-            lastname: store.lastname
-        }));
-        formData.append('recipient', JSON.stringify({
-            firstname: recipientFirstname.value,
-            lastname: recipientLastname.value
-        }));
-        formData.append('fineType', JSON.stringify(selectedFineType.value));
-        formData.append('weight', weight.value);
-        formData.append('description', description.value);
-        formData.append('timestamp', timestamp);
-
-        if (imageFile.value) {
-      formData.append('image', imageFile.value);
-    }
-
-        const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        statusText.value = "Bot meldt inn";
-        recipientFirstname.value = '';
-        recipientLastname.value = '';
-        selectedFineType.value = '';
-        weight.value = '';
-        description.value = '';
-        imageFile.value = null;
-        searchQuery.value = '';
-        retrieveFines()
-        setTimeout(() => {
-          closeModal()
-        }, 2000)
-        } catch (error) {
-            console.error('Error saving fine:', error);
-        }
-    }
-    
-
     return {
       firstName,
-      isModalOpen,
-      openModal,
-      closeModal,
-      userList,
-      selectedFineType,
-      fineTypes,
-      searchQuery,
-      filteredUsers,
-      handleSearchInput,
-      selectUser,
-      showUserList,
-      recipientFirstname,
-      recipientLastname,
-      postFine,
-      description,
-      weight,
-      statusText,
-      fines,
-      selectedFine,
-      hideFineDetails,
-      formatTimestamp,
-      handleImageUpload,
-      toggleFineDetails
+      currentView
     };
   },
 };
@@ -293,165 +48,28 @@ function hideFineDetails(fine) {
 
 <style scoped>
 
-.fine-expanded-details {
-  overflow: hidden;
-  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-  max-height: 0;
-  opacity: 0;
+
+.menu-navigator .menu-item {
+    background-color: #eb940a; /* Orange Background */
+    color: #ffffff; /* White Text */
+    padding: 10px 20px; /* Padding around the text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Hand cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+    font-size: 16px; /* Font size */
+    margin-right: 10px; /* Space between buttons */
+    width: 7rem;
+    border: rgb(87, 87, 87) 1px solid;
 }
 
-.expanded .fine-expanded-details {
-  max-height: 500px; /* Adjust as needed */
-  opacity: 1;
-}
-.fine-image {
-    max-width: 100%;
-    height: auto;
+.menu-navigator .menu-item:hover {
+    background-color: #cf830a; /* Darker Orange on Hover */
 }
 
-.fines-container {
-  height: 50vh;
-  background-color: #eb940a;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  margin-top: 20px;
-  cursor: pointer;
-  max-height: 50vh;
-  overflow-y: auto;
-  min-width: 30vh;
+.menu-navigator .menu-item:active {
+    background-color: #a76600; /* Even Darker Orange on Click */
 }
-
-.fines-container li {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fines-container::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
-}
-
-.fine-details {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.fine-details h3 {
-  margin: 0;
-}
-
-.fine-details button {
-  padding: 10px 20px;
-  background-color: #d88808;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-.fine-details button:hover {
-  background-color: #ffaa37;
-}
-
-  .fine-item {
-    background-color: #fff;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
-  }
-
-  .fine-item:hover {
-    background-color: #f0f0f0;
-  }
-
-  .fine-item span {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  ul {
-    margin: 0px;
-    padding: 0;
-  }
-.modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #a86a07;
-    border-radius: 8px;
-    padding: 18px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
-}
-
-.modal textarea {
-    width: 20rem;
-    height: 13rem;
-}
-
-.modal-content {
-    color: #ffffff;
-}
-
-.modal-header, .modal-footer {
-    align-items: center;
-    justify-content: center;
-    display: flex;
-}
-
-.modal-footer button {
-  padding: 10px 20px;
-  background-color: #d88808;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.modal input {
-    padding: 10px;
-    background-color: #eb940a;
-    border: none;
-    border-radius: 8px;
-    color: #ffffff;
-    outline: none;
-    font-size: medium;
-}
-
-.input-row {
-  margin: 30px 0;
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
 .main-container input {
     padding: 10px;
     background-color: #eb940a;
@@ -465,7 +83,6 @@ function hideFineDetails(fine) {
 .dashboard-wrapper {
     background-color: #cf830a;
     width: 100%;
-    height: 87vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -491,50 +108,7 @@ function hideFineDetails(fine) {
     padding: 0 20px;
   }
 
-.fine-button {
-  padding: 10px 20px;
-  width: 8rem;
-  background-color: #d88808;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
 
-.fine-button:hover {
-  background-color: #ffaa37;
-}
-
-.dropdown {
-  position: relative;
-}
-
-.user-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background-color: #ffffff;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 999;
-}
-
-.user-list li {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.user-list li:hover {
-  background-color: #f0f0f0;
-}
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -580,10 +154,6 @@ input[type="number"] {
   .main-container {
     width: 100%; /* Adjusted width */
     padding: 0 10px; /* Adjusted padding */
-  }
-
-  .fines-container {
-    height: 40vh; /* Adjusted height */
   }
 
   .welcome-wrapper h1 {
