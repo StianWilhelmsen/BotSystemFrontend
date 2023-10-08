@@ -10,9 +10,10 @@
                 <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
                 <div v-if="fine.showDetails" class="fine-expanded-details">
-                  <h5>Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                  <h5>§ {{ fine.fineType.fineName }}</h5>
-                  <p>Begrunnelse: {{ fine.description }}</p>
+                  <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
+                  <h5 class="fineInfo">§ {{ fine.fineType.fineName }}</h5>
+                  <p class="descriptionText">Begrunnelse:</p>
+                  <p class="descriptionText">{{ fine.description }}</p>
                   <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
                 </div>
               </div>
@@ -43,7 +44,7 @@
       </div>
         <div class="input-row">
             <select id="fineType" v-model="selectedFineType" class="fine-type-select">
-  <option value="" disabled selected>Lovbrudd</option>
+  <option value="" disabled selected>Velg et lovbrudd</option>
   <option v-for="fineType in fineTypes" :key="fineType.fineType" :value="fineType">{{ fineType }}</option>
 </select>
         </div>
@@ -55,8 +56,9 @@
         </div>
         <input type="file" accept="image/*" @change="handleImageUpload" />
         <div class="modal-footer">
-          <button @click="postFine()">Meld inn</button>
+          <button @click="postFine()" :disabled="isSubmitting">Meld inn</button>
         </div>
+        <p v-if="isSubmitting">Prøver å poste bot...</p>
         <p> {{ statusText }}</p>
       </div>
     </div>
@@ -92,6 +94,7 @@ export default {
     const timestamp = new Date().toISOString();
     const imageFile = ref(null);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
+    const isSubmitting = ref(false);
 
 
     async function handleImageUpload(event) {
@@ -213,6 +216,22 @@ function hideFineDetails(fine) {
 }
 
     async function postFine() {
+
+      if (!selectedFineType.value) {
+        statusText.value = "Vennligst velg et lovbrudd.";
+        return;
+    }
+
+    if (!recipientFirstname.value || !recipientLastname.value) {
+        statusText.value = "Vennligst velg hvem som har begått lovbruddet.";
+        return;
+    }
+
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (imageFile.value && imageFile.value.size > MAX_IMAGE_SIZE) {
+        statusText.value = "Bildet er for stort. Vennligst last opp et bilde som er mindre enn 5MB.";
+        return;
+    }
     try {
         const formData = new FormData();
 
@@ -232,27 +251,37 @@ function hideFineDetails(fine) {
         if (imageFile.value) {
       formData.append('image', imageFile.value);
     }
-
-        const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
+    isSubmitting.value = true;
+    const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         });
-        statusText.value = "Bot meldt inn";
-        recipientFirstname.value = '';
-        recipientLastname.value = '';
-        selectedFineType.value = '';
-        weight.value = '';
-        description.value = '';
-        imageFile.value = null;
-        searchQuery.value = '';
-        retrieveFines()
-        setTimeout(() => {
-          closeModal()
-        }, 2000)
-        } catch (error) {
-            console.error('Error saving fine:', error);
+        if (response.status === 200) {
+          statusText.value = "Bot meldt inn";
+          recipientFirstname.value = '';
+          recipientLastname.value = '';
+          selectedFineType.value = '';
+          weight.value = '';
+          description.value = '';
+          imageFile.value = null;
+          searchQuery.value = '';
+          retrieveFines()
+          setTimeout(() => {
+            closeModal()
+          }, 2000)
+      } else {
+        statusText.value = "Noe gikk galt. Vennligst prøv igjen.";
+      }
+    } catch (error) {
+        console.error('Error saving fine:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            statusText.value = error.response.data.message; 
+          } else {
+            statusText.value = "En feil oppstod under innsending. Vennligst prøv igjen.";
         }
+    }
+    isSubmitting.value = false;
     }
     
 
@@ -280,13 +309,58 @@ function hideFineDetails(fine) {
       hideFineDetails,
       formatTimestamp,
       handleImageUpload,
-      toggleFineDetails
+      toggleFineDetails,
+      isSubmitting
     };
   },
 };
 </script>
 
 <style scoped>
+
+.descriptionText {
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.fineInfo {
+  text-align: left;
+}
+
+textarea {
+  background-color: #24324e; /* Dark blue background to match the modal */
+  border: 1px solid #4a6fa1; /* Lighter blue border for visibility */
+  border-radius: 8px;
+  color: #ffffff; /* White text for contrast */
+  font-style: normal;
+    font-family: 'Arial', sans-serif; /* Using Arial as a base font */
+    font-size: 16px; /* Adjust for readability */
+    padding: 10px; /* Padding for better text alignment */
+    line-height: 1.5; /* Spacing between lines for readability */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus effect */
+}
+
+textarea:focus {
+    border-color: #4a6fa1; /* or any other color you prefer */
+    outline: none; /* to remove the default browser outline */
+    box-shadow: none; /* if you want to remove any potential shadow */
+}
+
+
+
+.fine-type-select {
+    width: 100%; /* Full width within its container */
+    padding: 10px;
+    background-color: #24324e; /* Dark blue background to match the modal */
+    border: 1px solid #4a6fa1; /* Lighter blue border for visibility */
+    border-radius: 8px;
+    color: #ffffff; /* White text for contrast */
+    font-size: 16px; /* Adjust font size for readability */
+    appearance: none; /* Remove default appearance */
+    outline: none; /* Remove focus outline */
+    cursor: pointer; /* Hand cursor for dropdown */
+}
+
 
 .fine-expanded-details {
   overflow: hidden;
@@ -296,16 +370,19 @@ function hideFineDetails(fine) {
 }
 
 .expanded .fine-expanded-details {
-  max-height: 500px; /* Adjust as needed */
+  max-height: fit-content; /* Adjust as needed */
   opacity: 1;
 }
 .fine-image {
     max-width: 100%;
     height: auto;
+    object-fit: contain;
+    display: block; 
+    margin: 0 auto; 
 }
 
 .fines-container {
-  background-color: #eb940a;
+  border: 0.5px solid rgb(180, 180, 180);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -338,20 +415,6 @@ function hideFineDetails(fine) {
   margin: 0;
 }
 
-.fine-details button {
-  padding: 10px 20px;
-  background-color: #d88808;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-.fine-details button:hover {
-  background-color: #ffaa37;
-}
 
   .fine-item {
     background-color: #fff;
@@ -382,7 +445,7 @@ function hideFineDetails(fine) {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #a86a07;
+    background-color: #24324e;
     border-radius: 8px;
     padding: 18px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -406,18 +469,19 @@ function hideFineDetails(fine) {
 
 .modal-footer button {
   padding: 10px 20px;
-  background-color: #d88808;
+  background-color: transparent;
+  border: 0.5px solid rgb(180, 180, 180);
   color: #ffffff;
-  border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .modal input {
+    width: 90%; /* Full width within its container */
     padding: 10px;
-    background-color: #eb940a;
-    border: none;
+    background-color: transparent;
+    border: 0.5px solid rgb(180, 180, 180);
     border-radius: 8px;
     color: #ffffff;
     outline: none;
@@ -447,8 +511,6 @@ function hideFineDetails(fine) {
 }
 
 .main-container input {
-    padding: 10px;
-    background-color: #eb940a;
     border: none;
     border-radius: 8px;
     color: #ffffff;
@@ -475,15 +537,14 @@ function hideFineDetails(fine) {
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
-    padding: 0 20px;
   }
 
 .fine-button {
   padding: 10px 20px;
   width: 8rem;
-  background-color: #d88808;
-  color: #ffffff;
-  border: none;
+  border: 0.5px solid rgb(180, 180, 180);
+  color: rgb(218, 218, 218);
+  background-color: transparent;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -491,7 +552,7 @@ function hideFineDetails(fine) {
 }
 
 .fine-button:hover {
-  background-color: #ffaa37;
+
 }
 
 .dropdown {
@@ -500,13 +561,15 @@ function hideFineDetails(fine) {
 
 .user-list {
   position: absolute;
+  text-align: left;
   top: 100%;
   left: 0;
   width: 100%;
-  background-color: #ffffff;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background-color: #24324e; /* Dark blue background to match the modal */
+  border: 1px solid #4a6fa1; /* Lighter blue border for visibility */
+  border-radius: 8px;
+  color: #ffffff; /* White text for contrast */
+  font-size: 16px; /* Adjust font size for readability */
   list-style: none;
   padding: 0;
   margin: 0;
@@ -566,7 +629,6 @@ input[type="number"] {
 
   .main-container {
     width: 100%; /* Adjusted width */
-    padding: 0 10px; /* Adjusted padding */
   }
 
   .welcome-wrapper h1 {

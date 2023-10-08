@@ -1,7 +1,9 @@
 <template>
 <div class="dashboard-wrapper">
     <div class="welcome-wrapper">
-        <h1>Velkommen, {{ firstName }}</h1>
+      <div class="stats-div">
+        <StatisticComponent/>
+      </div>
         <div class="menu-navigator">
           <button @click="currentView = 'fines'" class="menu-item">Bøter</button>
           <button @click="currentView = 'lovverk'" class="menu-item">Lovverk</button>
@@ -19,6 +21,7 @@ import store from '@/store.js';
 import axios from 'axios';
 import LovverkComponent from '@/components/LovverkComponent.vue'
 import BotComponent from '@/components/BotComponent.vue'
+import StatisticComponent from '@/components/StatisticComponent.vue'
 
 export default {
 
@@ -48,31 +51,26 @@ export default {
 
 <style scoped>
 
+.stats-div {
+  margin-bottom: 2vh;
+}
 
 .menu-navigator .menu-item {
-    background-color: #eb940a; /* Orange Background */
-    color: #ffffff; /* White Text */
-    padding: 10px 20px; /* Padding around the text */
-    border: none; /* No border */
+  background-color: transparent;
+  border: 0.5px solid rgb(180, 180, 180);
+    color: #ffffff; /* White text for contrast */
+    padding: 10px 20px; /* Adjust as needed */
     border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Hand cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition */
-    font-size: 16px; /* Font size */
-    margin-right: 10px; /* Space between buttons */
-    width: 7rem;
-    border: rgb(87, 87, 87) 1px solid;
+    transition: 0.3s; /* Smooth transition for hover effects */
 }
 
-.menu-navigator .menu-item:hover {
-    background-color: #cf830a; /* Darker Orange on Hover */
+.menu-navigator:hover .menu-item:hover {
+  color: #a3a3a3; /* Dark blue text for contrast on hover */
 }
 
-.menu-navigator .menu-item:active {
-    background-color: #a76600; /* Even Darker Orange on Click */
-}
+
 .main-container input {
-    padding: 10px;
-    background-color: #eb940a;
+    background-color: #1a2438;
     border: none;
     border-radius: 8px;
     color: #ffffff;
@@ -81,7 +79,7 @@ export default {
   }
 
 .dashboard-wrapper {
-    background-color: #cf830a;
+  background-color: #1a2438;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -105,7 +103,6 @@ export default {
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
-    padding: 0 20px;
   }
 
 
@@ -153,7 +150,6 @@ input[type="number"] {
 
   .main-container {
     width: 100%; /* Adjusted width */
-    padding: 0 10px; /* Adjusted padding */
   }
 
   .welcome-wrapper h1 {

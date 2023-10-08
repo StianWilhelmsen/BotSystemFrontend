@@ -65,7 +65,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background-color: #a86a07;
+  background-color: #24324e;
   padding: 1rem;
   height: 5rem;
   font-family: Roboto;

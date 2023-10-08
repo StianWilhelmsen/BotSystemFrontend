@@ -12,6 +12,7 @@
 
 <script>
 import store from '@/store.js';
+import axios from 'axios';
 
 
 </script>
@@ -26,7 +27,8 @@ import store from '@/store.js';
   align-items: center;
   flex-direction: column;
   min-height: 88vh;
-  background-color: #a86a07;
+  background-color: #24324e;
+
   font-family: Roboto;
   overflow: hidden;
 }

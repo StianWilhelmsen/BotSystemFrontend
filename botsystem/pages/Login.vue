@@ -122,7 +122,7 @@ export default {
   .login-form {
     position: absolute;
     z-index: 1;
-    background-color: #a86a07b2;
+    background-color: rgba(36, 50, 78, 0.8); /* Dark blue background to match the modal */
     height: 50vh;
     width: 40vh;
     border-radius: 5%;
@@ -154,11 +154,7 @@ export default {
     outline: none;
     transition: all 0.3s;
   }
-  
-  .login-form input:focus {
-    border-bottom-color: #a86a07;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
+
   
   .login-form label {
     position: absolute;
@@ -188,9 +184,6 @@ export default {
     margin: 3px;
   }
   
-  .login-form button:hover {
-    background-color: #d88808;
-  }
 
   .login-form input:-webkit-autofill {
   background-color: rgba(255, 255, 255, 0.1);

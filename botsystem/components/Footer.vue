@@ -5,12 +5,6 @@
         BeerFineTM
     </div>
     
-    <div>
-        Laget av Stian Wilhelmsen
-
-        hei
-
-    </div>
 
 
 </div>
@@ -29,7 +23,9 @@
   align-items: center;
   justify-content: center;
   height: 12vh;
-  background-color: #a86a07;
+  background-color: #24324e;
+  color: white;
+
 }
 
 </style>
