@@ -17,11 +17,17 @@
                   <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
 
                   <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
-                    <button @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
-                    <textarea v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
-                    <button v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Submit</button>
+                    <button id="LeggTilBtn" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
+                    <textarea class="defenceText" v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
+                    <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
                  </div>
-                 <p v-if="fine.defence">{{ fine.defence }}</p>
+                 <div class="defence-container" id="defence-title" v-if="fine.defence">
+                  <div class="title">Forsvar fra den tiltalte:</div>
+                  <div class="defence-given">
+                    {{ fine.defence }}
+                  </div>
+                
+                </div>
                 </div>
               </div>
             </li>
@@ -102,7 +108,8 @@ export default {
     const imageFile = ref(null);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
     const isSubmitting = ref(false);
-    const loggedInUserId = store.loggedInUserId
+    const loggedInUserId = store.loggedInUserId;
+    const isButtonVisible = ref(true);
 
 
     async function handleImageUpload(event) {
@@ -131,6 +138,7 @@ export default {
     function showDefenceTextarea(event, fine) {
       event.stopPropagation();
       fine.showDefenceInput = true;
+      isButtonVisible.value = false;
 }
 
 async function submitDefence(fine) {
@@ -349,6 +357,47 @@ function hideFineDetails(fine) {
 </script>
 
 <style scoped>
+
+#defence-title {
+  font-size: 0.8rem;
+}
+
+.defence-container {
+  font-size: 0.7rem;
+  font-style: normal;
+  font-family: 'Arial', sans-serif;
+  background-color: #24324e; /* Dark blue background to match the modal */
+    border: 0.5px solid black;
+    color: #ffffff; /* White text for contrast */
+    padding: 10px 20px; /* Adjust as needed */
+    border-radius: 5px; /* Rounded corners */
+    text-align: left;
+    line-height: 1.5;
+}
+
+.defenceText {
+  resize: none;
+  font-size: 0.8rem;
+  font-style: normal;
+  font-family: 'Arial', sans-serif; /* Using Arial as a base font */
+}
+
+.defence-button {
+    background-color: #24324e; /* Dark blue background to match the modal */
+    border: 0.5px solid black;
+    color: #ffffff; /* White text for contrast */
+    padding: 10px 20px; /* Adjust as needed */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Hand cursor for button */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effect */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.defence-button:hover {
+ /* Darkened gradient for hover effect */
+    transform: scale(1.05); /* Slightly enlarge the button on hover for a subtle effect */
+}
 
 .descriptionText {
   font-size: 0.9rem;
