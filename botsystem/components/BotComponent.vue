@@ -15,6 +15,13 @@
                   <p class="descriptionText">Begrunnelse:</p>
                   <p class="descriptionText">{{ fine.description }}</p>
                   <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
+
+                  <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
+                    <button @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
+                    <textarea v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
+                    <button v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Submit</button>
+                 </div>
+                 <p v-if="fine.defence">{{ fine.defence }}</p>
                 </div>
               </div>
             </li>
@@ -95,6 +102,7 @@ export default {
     const imageFile = ref(null);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
     const isSubmitting = ref(false);
+    const loggedInUserId = store.loggedInUserId
 
 
     async function handleImageUpload(event) {
@@ -120,6 +128,28 @@ export default {
     });
 
 
+    function showDefenceTextarea(event, fine) {
+      event.stopPropagation();
+      fine.showDefenceInput = true;
+}
+
+async function submitDefence(fine) {
+  console.log(fine.id)
+  try {
+    const response = await axios.post(`${apiPort.value}/api/fine/addDefence?fineId=${fine.id}`, {
+      defence: fine.tempDefence
+    });
+    
+    if (response.status === 200) {
+      fine.defence = fine.tempDefence;
+      fine.showDefenceInput = false;
+    } else {
+      console.error("Error adding defence:", response.data);
+    }
+  } catch (error) {
+    console.error("Error adding defence:", error);
+  }
+}
     
 function formatTimestamp(timestamp) {
   if (timestamp) {
@@ -143,7 +173,6 @@ function compressImage(file) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
       
-      // Sett kvaliteten på bildet, 0.8 er 80% kvalitet
       canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.5);
     };
     img.onerror = (err) => reject(err);
@@ -310,7 +339,10 @@ function hideFineDetails(fine) {
       formatTimestamp,
       handleImageUpload,
       toggleFineDetails,
-      isSubmitting
+      isSubmitting,
+      loggedInUserId,
+      showDefenceTextarea,
+      submitDefence
     };
   },
 };

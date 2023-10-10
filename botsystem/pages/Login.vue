@@ -61,11 +61,14 @@ export default {
         const token = response.data.token;
         const firstName = response.data.firstname;
         const lastName = response.data.lastname;
+        const userId = parseInt(response.data.userId, 10);
 
         localStorage.setItem('jwtToken', token);
         store.isLoggedIn = true;
         store.firstname = firstName;
         store.lastname = lastName;
+        store.loggedInUserId = userId;
+        console.log(store.loggedInUserId)
 
         router.push('/dashboard');
       } catch (error) {
