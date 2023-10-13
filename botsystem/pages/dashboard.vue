@@ -55,17 +55,20 @@ export default {
   margin-bottom: 2vh;
 }
 
+/* Intuitive & Organized */
 .menu-navigator .menu-item {
   background-color: transparent;
-  border: 0.5px solid rgb(180, 180, 180);
-    color: #ffffff; /* White text for contrast */
-    padding: 10px 20px; /* Adjust as needed */
-    border-radius: 5px; /* Rounded corners */
-    transition: 0.3s; /* Smooth transition for hover effects */
+  border: 1px solid rgb(180, 180, 180); /* Increased border thickness for clarity */
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: 0.3s;
+  margin: 0 5px; /* Added spacing between buttons for better separation */
 }
 
 .menu-navigator:hover .menu-item:hover {
   color: #a3a3a3; /* Dark blue text for contrast on hover */
+  cursor: hover;
 }
 
 
@@ -78,12 +81,12 @@ export default {
     font-size: medium;
   }
 
-.dashboard-wrapper {
+  .dashboard-wrapper {
   background-color: #1a2438;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .welcome-wrapper {

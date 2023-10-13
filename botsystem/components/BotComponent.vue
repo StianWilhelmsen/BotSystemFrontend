@@ -8,10 +8,10 @@
             <li v-for="fine in fines" :key="fine.id">
               <div :class="{ 'expanded': fine.showDetails }" class="fine-item" @click="toggleFineDetails(fine)">
                 <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
+                <p>§ {{ fine.fineType.fineName }}</p>
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
                 <div v-if="fine.showDetails" class="fine-expanded-details">
                   <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                  <h5 class="fineInfo">§ {{ fine.fineType.fineName }}</h5>
                   <p class="descriptionText">Begrunnelse:</p>
                   <p class="descriptionText">{{ fine.description }}</p>
                   <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
@@ -22,7 +22,7 @@
                     <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
                  </div>
                  <div class="defence-container" id="defence-title" v-if="fine.defence">
-                  <div class="title">Forsvar fra den tiltalte:</div>
+                  <div class="title"><b>Forsvar fra den tiltalte:</b></div>
                   <div class="defence-given">
                     {{ fine.defence }}
                   </div>
@@ -30,8 +30,12 @@
                 </div>
                 </div>
               </div>
+              
             </li>
           </ul>
+          <div class="load-more-wrapper">
+    <button @click="loadMoreFines">Last inn flere</button>
+</div>
         </div>
     </div>
 
@@ -110,6 +114,7 @@ export default {
     const isSubmitting = ref(false);
     const loggedInUserId = store.loggedInUserId;
     const isButtonVisible = ref(true);
+    const currentPage = ref(0);
 
 
     async function handleImageUpload(event) {
@@ -186,14 +191,29 @@ function compressImage(file) {
     img.onerror = (err) => reject(err);
   });
 }
-    async function retrieveFines() {
-  try {
-    const response = await axios.get(apiPort.value +"/api/fine/getFines");
-    fines.value = response.data.map(fine => ({ ...fine, showDetails: false }));
-  } catch (error) {
-    console.error("Error retrieving fines", error);
-  }
+async function retrieveFines(page = 0) {
+    try {
+        const response = await axios.get(apiPort.value + "/api/fine/getFines", {
+            params: {
+                page: page,
+                size: 10
+            }
+        });
+        if (page === 0) {
+            fines.value = response.data;
+        } else {
+            fines.value = [...fines.value, ...response.data];
+        }
+    } catch (error) {
+        console.error("Error retrieving fines", error);
+    }
 }
+
+function loadMoreFines() {
+    currentPage.value += 1;
+    retrieveFines(currentPage.value);
+}
+
 
     function toggleFineDetails(fine) {
   fine.showDetails = !fine.showDetails;
@@ -350,7 +370,8 @@ function hideFineDetails(fine) {
       isSubmitting,
       loggedInUserId,
       showDefenceTextarea,
-      submitDefence
+      submitDefence,
+      loadMoreFines
     };
   },
 };
@@ -366,11 +387,9 @@ function hideFineDetails(fine) {
   font-size: 0.7rem;
   font-style: normal;
   font-family: 'Arial', sans-serif;
-  background-color: #24324e; /* Dark blue background to match the modal */
-    border: 0.5px solid black;
+  border: #d6d6d6 0.5px solid;
     color: #ffffff; /* White text for contrast */
     padding: 10px 20px; /* Adjust as needed */
-    border-radius: 5px; /* Rounded corners */
     text-align: left;
     line-height: 1.5;
 }
@@ -380,18 +399,25 @@ function hideFineDetails(fine) {
   font-size: 0.8rem;
   font-style: normal;
   font-family: 'Arial', sans-serif; /* Using Arial as a base font */
+  width: 90%;
 }
 
 .defence-button {
-    background-color: #24324e; /* Dark blue background to match the modal */
-    border: 0.5px solid black;
     color: #ffffff; /* White text for contrast */
     padding: 10px 20px; /* Adjust as needed */
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Hand cursor for button */
     transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effect */
-    margin-top: 10px;
-    margin-bottom: 10px;
+    background-color: transparent;
+    color: #d6d6d6;
+    padding: 10px;
+    margin: 10px 0;
+    border: #d6d6d6 0.5px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0 0px rgba(228, 228, 228, 0);
+    width: 90%;
 }
 
 .defence-button:hover {
@@ -444,6 +470,7 @@ textarea:focus {
 
 
 .fine-expanded-details {
+  background-color: transparent;
   overflow: hidden;
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
   max-height: 0;
@@ -453,6 +480,7 @@ textarea:focus {
 .expanded .fine-expanded-details {
   max-height: fit-content; /* Adjust as needed */
   opacity: 1;
+  max-width: 40vh;
 }
 .fine-image {
     max-width: 100%;
@@ -463,25 +491,22 @@ textarea:focus {
 }
 
 .fines-container {
-  border: 0.5px solid rgb(180, 180, 180);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   margin-top: 20px;
   cursor: pointer;
-  min-width: 30vh;
-  max-width: 30vh;
+  min-width: 100%;
+  max-width: 250px;
 }
 
 .fines-container li {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: black;
 }
 
 .fines-container::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+    display: none;
 }
 
 .fine-details {
@@ -498,18 +523,20 @@ textarea:focus {
 
 
   .fine-item {
-    background-color: #fff;
+    background-color: transparent;
+    color: #d6d6d6;
     padding: 10px;
     margin: 10px 0;
+    border: #d6d6d6 0.5px solid;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    width: 250px;
+    box-shadow: 0 0 0px rgba(228, 228, 228, 0);
   }
 
   .fine-item:hover {
-    background-color: #f0f0f0;
+    box-shadow: 0 0 10px rgba(228, 228, 228, 0.2);
   }
 
   .fine-item span {

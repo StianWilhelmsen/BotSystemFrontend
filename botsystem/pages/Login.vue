@@ -50,6 +50,8 @@ export default {
     const router = useRouter();
     const isAutofilled = ref(false);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
+    const brukersEpost = ref('')
+    const nyttPassord = ref('')
 
     async function login() {
       try {
@@ -68,7 +70,9 @@ export default {
         store.firstname = firstName;
         store.lastname = lastName;
         store.loggedInUserId = userId;
-        console.log(store.loggedInUserId)
+        localStorage.setItem('firstname', firstName)
+        localStorage.setItem('lastname', lastName)
+        localStorage.setItem('userId', userId)
 
         router.push('/dashboard');
       } catch (error) {
@@ -76,12 +80,18 @@ export default {
       }
     }
 
+
     onMounted(() => {
-      if (email.value !== '') {
-        isAutofilled.value = true;
-      }
-      if (password.value !== '') {
-        isAutofilled.value = true;
+      const token = localStorage.getItem('jwtToken');
+      if (token) {
+        store.isLoggedIn = true;
+        store.firstname = localStorage.getItem('firstname') || '';
+        store.lastname = localStorage.getItem('lastname') || '';
+        store.loggedInUserId = parseInt(localStorage.getItem('userId'), 10) || 0;
+
+        if (store.isLoggedIn) {
+          router.push('/dashboard');
+        }
       }
     });
     
@@ -90,7 +100,7 @@ export default {
       email,
       password,
       login,
-      router
+      router,
     };
   },
 };

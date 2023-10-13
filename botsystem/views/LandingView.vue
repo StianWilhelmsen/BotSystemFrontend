@@ -11,9 +11,16 @@
     </template>
 
 <script>
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import store from '@/store.js';
-import axios from 'axios';
 
+export default {
+  setup() {
+    const router = useRouter();
+
+  }
+}
 
 </script>
 
