@@ -3,6 +3,9 @@
         <div class="search-fine-wrapper">
             <button class="fine-button" @click="openModal">Meld bot</button>
         </div>
+        <div class="filter-div">
+
+        </div>
         <div class="fines-container">
           <ul>
             <li v-for="fine in fines" :key="fine.id">
@@ -17,7 +20,7 @@
                   <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
 
                   <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
-                    <button id="LeggTilBtn" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
+                    <button v-if="invalidDefence" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
                     <textarea class="defenceText" v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
                     <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
                  </div>
@@ -115,6 +118,10 @@ export default {
     const loggedInUserId = store.loggedInUserId;
     const isButtonVisible = ref(true);
     const currentPage = ref(0);
+    const invalidDefence = ref(true);
+
+    const modalSearchQuery = ref('');
+    const modalShowUserList = ref(false);
 
 
     async function handleImageUpload(event) {
@@ -144,6 +151,8 @@ export default {
       event.stopPropagation();
       fine.showDefenceInput = true;
       isButtonVisible.value = false;
+      invalidDefence.value = false;
+
 }
 
 async function submitDefence(fine) {
@@ -371,7 +380,8 @@ function hideFineDetails(fine) {
       loggedInUserId,
       showDefenceTextarea,
       submitDefence,
-      loadMoreFines
+      loadMoreFines,
+      invalidDefence
     };
   },
 };
@@ -403,11 +413,11 @@ function hideFineDetails(fine) {
 }
 
 .defence-button {
-    color: #ffffff; /* White text for contrast */
-    padding: 10px 20px; /* Adjust as needed */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Hand cursor for button */
-    transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effect */
+    color: #ffffff; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s, transform 0.3s; 
     background-color: transparent;
     color: #d6d6d6;
     padding: 10px;
@@ -618,13 +628,7 @@ textarea:focus {
     cursor: pointer;
 }
 
-.main-container input {
-    border: none;
-    border-radius: 8px;
-    color: #ffffff;
-    outline: none;
-    font-size: medium;
-  }
+
 
 
 
@@ -667,6 +671,17 @@ textarea:focus {
   position: relative;
 }
 
+.filter-div input{
+  margin-top: 10px;
+  padding: 10px;
+  background-color: transparent;
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 8px;
+  color: #ffffff;
+  outline: none;
+  font-size: medium;
+}
+
 .user-list {
   position: absolute;
   text-align: left;
@@ -691,7 +706,8 @@ textarea:focus {
 }
 
 .user-list li:hover {
-  background-color: #f0f0f0;
+  background-color: #4a6fa1;
+  border-radius: 7px;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

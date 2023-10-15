@@ -63,7 +63,8 @@ export default {
   padding: 10px 20px;
   border-radius: 5px;
   transition: 0.3s;
-  margin: 0 5px; /* Added spacing between buttons for better separation */
+  margin: 0 5px;
+  width: 6rem;
 }
 
 .menu-navigator:hover .menu-item:hover {

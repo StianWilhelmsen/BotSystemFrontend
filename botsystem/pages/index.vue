@@ -20,8 +20,8 @@ export default {
             const token = localStorage.getItem('jwtToken');
             if (token) {
                 store.isLoggedIn = true;
-                store.firstname = localStorage.getItem('firstName') || '';
-                store.lastname = localStorage.getItem('lastName') || '';
+                store.firstname = localStorage.getItem('firstname') || '';
+                store.lastname = localStorage.getItem('lastname') || '';
                 store.loggedInUserId = parseInt(localStorage.getItem('userId'), 10) || 0;
 
                 console.log('Store Values:');
