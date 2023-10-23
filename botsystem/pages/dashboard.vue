@@ -69,7 +69,7 @@ export default {
 
 .menu-navigator:hover .menu-item:hover {
   color: #a3a3a3; /* Dark blue text for contrast on hover */
-  cursor: hover;
+  cursor: pointer;
 }
 
 

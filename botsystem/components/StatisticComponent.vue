@@ -3,6 +3,7 @@
         <h1 class="title">Statistikk</h1>
         <h3 class="sub-header">Totalt antall bøter: {{ totalFines }}</h3>
         <h3 class="sub-header">Største lovbryteren: {{ mostFines }}</h3>
+        <h3 class="sub-header">Dine bøter: {{ yourFines }}</h3>
     </div>
 </template>
 
@@ -14,19 +15,27 @@ export default {
     setup() {
         const totalFines = ref('')
         const mostFines = ref('')
+        const yourFines = ref('')
         const apiPort = ref(import.meta.env.VITE_API_KEY);
 
         async function getStats() {
-            try {
-                const response = await axios.get(apiPort.value + "/api/fine/getStats");
-                if (response.data) {
-                    totalFines.value = response.data.totalFines;
-                    mostFines.value = response.data.mostFinedUser;
-                }
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-            }
+    try {
+        const userId = localStorage.getItem('userId'); // Retrieve the user ID from localStorage
+        const response = await axios.get(apiPort.value + "/api/fine/getStats", {
+            params: { userId: userId }  // Pass the user ID as a query parameter
+        });
+
+        if (response.data) {
+            totalFines.value = response.data.totalFines;
+            mostFines.value = response.data.mostFinedUser;
+            // Assuming the API returns the fines specific to the logged-in user in a field named 'yourFines'.
+            yourFines.value = response.data.yourFines;
         }
+    } catch (error) {
+        console.error("Error fetching stats:", error);
+    }
+}
+
 
         onMounted(() => {
             getStats();
@@ -34,7 +43,8 @@ export default {
 
         return {
             totalFines,
-            mostFines
+            mostFines,
+            yourFines
         }
     }
 }

@@ -37,7 +37,7 @@
             </li>
           </ul>
           <div class="load-more-wrapper">
-    <button @click="loadMoreFines">Last inn flere</button>
+    <button class="fine-button" @click="loadMoreFines">Last inn flere</button>
 </div>
         </div>
     </div>
@@ -195,7 +195,7 @@ function compressImage(file) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
       
-      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.5);
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.3);
     };
     img.onerror = (err) => reject(err);
   });
