@@ -1,61 +1,71 @@
 <template>
     <div class="stats-container">
         <h1 class="title">Statistikk</h1>
-        <h3 class="sub-header">Totalt antall bøter: {{ totalFines }}</h3>
-        <h3 class="sub-header">Største lovbryteren: {{ mostFines }}</h3>
-        <h3 class="sub-header">Dine bøter: {{ yourFines }}</h3>
+        <h3 class="sub-header"> Totalt antall bøter: {{ totalFines }}</h3>
+        <h3 class="sub-header"> Største lovbryteren: {{ mostFines }}</h3>
+        <h3 class="sub-header"> Botpolitiet: {{ policeFine }}</h3>
+        <h3 class="sub-header"> Dine bøter: {{ yourFines }}</h3>
+        <h3 class="sub-header"> Bøter per pers: {{ averageFines }} </h3>
     </div>
 </template>
 
-<script>
+<script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
-export default {
-    setup() {
-        const totalFines = ref('')
-        const mostFines = ref('')
-        const yourFines = ref('')
-        const apiPort = ref(import.meta.env.VITE_API_KEY);
+const totalFines = ref('');
+const mostFines = ref('');
+const yourFines = ref('');
+const policeFine = ref('');
+const averageFines = ref('');
+const apiPort = import.meta.env.VITE_API_KEY;
+let hasFetchedStats = false;
 
-        async function getStats() {
+// Define a ref for userId that will be reactive
+const userId = ref(null);
+
+// Ensure that we only try to access localStorage when on the client
+if (process.client) {
+  userId.value = localStorage.getItem('userId');
+}
+
+async function getStats() {
+    if (hasFetchedStats) return;
+    hasFetchedStats = true;
     try {
-        const userId = localStorage.getItem('userId'); // Retrieve the user ID from localStorage
-        const response = await axios.get(apiPort.value + "/api/fine/getStats", {
-            params: { userId: userId }  // Pass the user ID as a query parameter
+        console.log("Trying to fetch stats");
+        const response = await axios.get(`${apiPort}/api/fine/getStats`, {
+            params: { userId: userId.value }
         });
 
         if (response.data) {
             totalFines.value = response.data.totalFines;
             mostFines.value = response.data.mostFinedUser;
-            // Assuming the API returns the fines specific to the logged-in user in a field named 'yourFines'.
             yourFines.value = response.data.yourFines;
+            policeFine.value = response.data.mostGivenFines;
+            averageFines.value = response.data.averageFines;
         }
     } catch (error) {
         console.error("Error fetching stats:", error);
     }
 }
 
-
-        onMounted(() => {
-            getStats();
-        })
-
-        return {
-            totalFines,
-            mostFines,
-            yourFines
-        }
+onMounted(() => {
+    if (userId.value) {
+        getStats();
     }
-}
+});
+
 </script>
+
 
 <style scoped>
 .stats-container {
     border: 0.5px solid rgb(180, 180, 180);
-    max-width: 400px;
+    max-width: 300px;
     margin: 0 auto;
     border-radius: 8px;
+    padding: 5px 10px;
 }
 
 .title {
@@ -66,7 +76,7 @@ export default {
 }
 
 .sub-header {
-    font-size: 18px;
+    font-size: 15px;
     margin-bottom: 15px;
     color: #dfdfdf;
     font-weight: 500;

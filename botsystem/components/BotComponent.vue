@@ -3,10 +3,7 @@
         <div class="search-fine-wrapper">
             <button class="fine-button" @click="openModal">Meld bot</button>
         </div>
-        <div class="filter-div">
-
-        </div>
-        <div class="fines-container">
+        <div v-if="currentView === 'fines'" class="fines-container">
           <ul>
             <li v-for="fine in fines" :key="fine.id">
               <div :class="{ 'expanded': fine.showDetails }" class="fine-item" @click="toggleFineDetails(fine)">
@@ -29,7 +26,6 @@
                   <div class="defence-given">
                     {{ fine.defence }}
                   </div>
-                
                 </div>
                 </div>
               </div>
@@ -109,7 +105,7 @@ export default {
     const weight = ref();
     const description = ref('');
     const statusText = ref('')
-    const fines = ref(null);
+    const fines = ref([]);
     const selectedFine = ref(null)
     const timestamp = new Date().toISOString();
     const imageFile = ref(null);
@@ -119,9 +115,21 @@ export default {
     const isButtonVisible = ref(true);
     const currentPage = ref(0);
     const invalidDefence = ref(true);
+    const currentView = ref('fines')
+    const selectedUserFines = ref([])
 
-    const modalSearchQuery = ref('');
-    const modalShowUserList = ref(false);
+    const sortedUsers = computed(() => {
+  return userList.value.slice().sort((a, b) => a.localeCompare(b));
+});
+
+const fetchFinesForUser = async (user) => {
+  try {
+    const response = await axios.get(`${apiPort.value}/api/fines`, { params: { name: `${user.firstname} ${user.lastname}` }});
+    selectedUserFines.value = response.data;
+  } catch (error) {
+    console.error("Error fetching fines for user", error);
+  }
+};
 
 
     async function handleImageUpload(event) {
@@ -141,10 +149,18 @@ export default {
     });
 
     onMounted(() => {
-      retrieveUsers();
-      retrieveFineTypes();
-      retrieveFines();
-    });
+      if (process.client) {
+        const finesFromLocalStorage = localStorage.getItem('fines');
+        if (finesFromLocalStorage) {
+          fines.value = JSON.parse(finesFromLocalStorage);
+        }
+      }
+      if (store.isLoggedIn) {
+    retrieveFines();
+    retrieveUsers();
+    retrieveFineTypes();
+      }
+});
 
 
     function showDefenceTextarea(event, fine) {
@@ -210,6 +226,9 @@ async function retrieveFines(page = 0) {
         });
         if (page === 0) {
             fines.value = response.data;
+            if (process.client) {
+                localStorage.setItem('fines', JSON.stringify(response.data));
+            }
         } else {
             fines.value = [...fines.value, ...response.data];
         }
@@ -350,6 +369,7 @@ function hideFineDetails(fine) {
     isSubmitting.value = false;
     }
     
+    
 
     return {
       firstName,
@@ -381,7 +401,10 @@ function hideFineDetails(fine) {
       showDefenceTextarea,
       submitDefence,
       loadMoreFines,
-      invalidDefence
+      invalidDefence,
+      currentView,
+      sortedUsers,
+      selectedUserFines
     };
   },
 };
@@ -389,6 +412,45 @@ function hideFineDetails(fine) {
 
 <style scoped>
 
+
+
+
+.user-list-div {
+  padding: 5px 10px; 
+  width: 100%;
+  border-radius: 8px;
+}
+
+.user-div {
+  display: flex;
+  justify-content: space-between; /* This will push the children elements to the far edges */
+  align-items: center; /* This will center them vertically */
+  margin: 1rem;
+  height: 3rem;
+  padding: 0 1rem; /* Add some padding on the sides */
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 8px;
+  min-height: 50px;
+  transition: all 0.3s ease;
+}
+
+.user-div:hover {
+  cursor: pointer;
+}
+
+.user-div.expanded {
+  height: 100px;
+}
+
+.user-name {
+  /* If you want the text to align to the left */
+  text-align: left;
+}
+
+.user-fines {
+  /* If you want the text to align to the right */
+  text-align: right;
+}
 #defence-title {
   font-size: 0.8rem;
 }
@@ -645,7 +707,7 @@ textarea:focus {
 
 .main-container {
     display: flex;
-    width: 40vh;
+    width: 90vh;
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
@@ -660,11 +722,15 @@ textarea:focus {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 10px;
+  margin: 10px;
 }
 
 .fine-button:hover {
 
+}
+
+.fine-button:active {
+  background-color: rgb(180, 180, 180, 0.5);
 }
 
 .dropdown {

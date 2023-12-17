@@ -55,7 +55,6 @@ export default {
   margin-bottom: 2vh;
 }
 
-/* Intuitive & Organized */
 .menu-navigator .menu-item {
   background-color: transparent;
   border: 1px solid rgb(180, 180, 180); /* Increased border thickness for clarity */

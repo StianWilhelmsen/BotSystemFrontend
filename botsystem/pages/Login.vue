@@ -50,8 +50,6 @@ export default {
     const router = useRouter();
     const isAutofilled = ref(false);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
-    const brukersEpost = ref('')
-    const nyttPassord = ref('')
 
     async function login() {
       try {

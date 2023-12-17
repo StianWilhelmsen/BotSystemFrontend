@@ -32,6 +32,7 @@
 <style scoped>
 .list-container {
   padding: 10px;
+  width: 90%;
 }
 
 .list-container ul {
@@ -41,6 +42,7 @@
 
 .list-container li {
   margin-bottom: 10px;
+  text-align: left;
 }
 </style>
   
