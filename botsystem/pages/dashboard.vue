@@ -34,12 +34,7 @@ export default {
     const apiPort = ref(import.meta.env.VITE_API_KEY);
     const currentView = ref('fines');
 
-
-    onBeforeMount(() => {
-      if (!store.isLoggedIn) {
-        router.push('/login')
-      }
-    });
+    
 
     return {
       firstName,
