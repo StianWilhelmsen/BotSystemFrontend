@@ -52,47 +52,58 @@ export default {
     const apiPort = ref(import.meta.env.VITE_API_KEY);
 
     async function login() {
-      try {
-        const response = await axios.post(apiPort.value + '/api/users/login', {
-          email: email.value,
-          password: password.value,
-        });
+  try {
+    const response = await axios.post(apiPort.value + '/api/users/login', {
+        email: email.value,
+        password: password.value,
+      }, {
+        withCredentials: true
+      });
 
-        const token = response.data.token;
-        const firstName = response.data.firstname;
-        const lastName = response.data.lastname;
-        const userId = parseInt(response.data.userId, 10);
+    if (response.data.firstname) {
+      store.isLoggedIn = true;
+      store.firstname = response.data.firstname;
+      store.lastname = response.data.lastname;
+      store.loggedInUserId = parseInt(response.data.userId, 10);
 
-        localStorage.setItem('jwtToken', token);
-        store.isLoggedIn = true;
-        store.firstname = firstName;
-        store.lastname = lastName;
-        store.loggedInUserId = userId;
-        localStorage.setItem('firstname', firstName)
-        localStorage.setItem('lastname', lastName)
-        localStorage.setItem('userId', userId)
-
-        router.push('/dashboard');
-      } catch (error) {
-        console.error('Error during login:', error);
-      }
+      router.push('/dashboard');
+    } else {
     }
-
-
-    onMounted(() => {
-      const token = localStorage.getItem('jwtToken');
-      if (token) {
-        store.isLoggedIn = true;
-        store.firstname = localStorage.getItem('firstname') || '';
-        store.lastname = localStorage.getItem('lastname') || '';
-        store.loggedInUserId = parseInt(localStorage.getItem('userId'), 10) || 0;
-
-        if (store.isLoggedIn) {
-          router.push('/dashboard');
-        }
-      }
+  } catch (error) {
+    console.error('Error during login:', error);
+  }
+}
+onMounted(async () => {
+  try {
+    // Make a request to a session verification endpoint
+    const response = await axios.get(apiPort.value + '/api/users/verifySession', {
+      withCredentials: true  // This will ensure cookies are included with the request
     });
-    
+
+    // Check for a specific property to confirm session is valid
+    // For example, you might check response.data.firstname
+    if (response.data.firstname) {
+      store.isLoggedIn = true;
+      store.firstname = response.data.firstname;
+      store.lastname = response.data.lastname;
+      store.loggedInUserId = response.data.userId;
+      console.log("Session is valid");
+      router.push('/dashboard')
+      // The server should respond with user details if the session is valid
+    } else {
+      // If the server does not respond with the expected user details,
+      // it means the session is not valid.
+      store.isLoggedIn = false;
+      // Optionally clear any user details from the state
+      router.push('/login');
+    }
+  } catch (error) {
+    console.error('Session verification failed:', error);
+    store.isLoggedIn = false;
+    // If there's an error, such as a 401 Unauthorized, redirect to login
+    router.push('/login');
+  }
+});
 
     return {
       email,

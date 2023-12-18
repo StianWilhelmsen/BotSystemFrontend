@@ -19,12 +19,15 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/store.js';
+import axios from 'axios';
 
 export default {
   setup() {
     const router = useRouter();
     const isOpen = ref(false);
     const showMenu = ref(false);
+  const apiPort = ref(import.meta.env.VITE_API_KEY);
+
 
     function goHome() {
       if (store.isLoggedIn) {
@@ -34,11 +37,19 @@ export default {
       }
     }
 
-    function logout() {
-      localStorage.removeItem('jwtToken');
-      store.isLoggedIn = false;
-      router.push('/');
-    }
+    async function logout() {
+  try {
+    // Call the logout endpoint
+    await axios.post(apiPort.value + '/api/users/logout', {}, { withCredentials: true });
+
+    store.isLoggedIn = false;
+
+    // Redirect to the home page
+    router.push('/');
+  } catch (error) {
+    console.error('Error during logout:', error);
+  }
+}
 
     function toggle() {
       isOpen.value = !isOpen.value;
