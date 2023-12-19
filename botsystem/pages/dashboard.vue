@@ -1,16 +1,13 @@
 <template>
-<div class="dashboard-wrapper">
+  <div class="dashboard-wrapper">
     <div class="welcome-wrapper">
-      <div class="stats-div">
-        <StatisticComponent/>
+      <div class="menu-navigator">
+        <button @click="currentView = 'fines'" :class="{ 'active': currentView === 'fines' }" class="menu-item">Bøter</button>
+        <button @click="currentView = 'lovverk'" :class="{ 'active': currentView === 'lovverk' }" class="menu-item">Lovverk</button>
       </div>
-        <div class="menu-navigator">
-          <button @click="currentView = 'fines'" class="menu-item">Bøter</button>
-          <button @click="currentView = 'lovverk'" class="menu-item">Lovverk</button>
-    </div>
     
-    <BotComponent v-if="currentView === 'fines'" />
-    <LovverkComponent v-if="currentView === 'lovverk'" />
+      <BotComponent v-if="currentView === 'fines'" />
+      <LovverkComponent v-if="currentView === 'lovverk'" />
     </div>
   </div>
 </template>
@@ -35,7 +32,6 @@ export default {
     const currentView = ref('fines');
 
     
-
     return {
       firstName,
       currentView
@@ -51,20 +47,25 @@ export default {
 }
 
 .menu-navigator .menu-item {
+  border: none;
   background-color: transparent;
-  border: 1px solid rgb(180, 180, 180); /* Increased border thickness for clarity */
   color: #ffffff;
   padding: 10px 20px;
-  border-radius: 5px;
-  transition: 0.3s;
   margin: 0 5px;
   width: 6rem;
+  margin-bottom: 1rem;
 }
 
 .menu-navigator:hover .menu-item:hover {
   color: #a3a3a3; /* Dark blue text for contrast on hover */
   cursor: pointer;
 }
+
+.menu-item.active {
+  color: rgb(50, 197, 247); 
+  border-bottom: 1px solid rgb(50, 197, 247); /* Optional: if you want a bottom border */
+}
+
 
 
 .main-container input {

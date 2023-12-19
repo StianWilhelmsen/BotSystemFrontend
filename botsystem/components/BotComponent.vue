@@ -1,5 +1,12 @@
 <template>
     <div class="main-container">
+      <div class="stats-div">
+        <StatisticComponent/>
+      </div>
+      <div class="fine-menu-selector">
+        <button id="left-menu" @click="currentView = 'fines'" :class="{ 'active': currentView === 'fines'}" class="fine-menu">Alle bøter</button>
+        <button id="right-menu" @click="currentView = 'per-user-fine'" :class="{ 'active': currentView === 'per-user-fine'}" class="fine-menu">Bøter per medlem</button>
+      </div>
         <div class="search-fine-wrapper">
             <button class="fine-button" @click="openModal">Meld bot</button>
         </div>
@@ -35,6 +42,10 @@
           <div class="load-more-wrapper">
     <button class="fine-button" @click="loadMoreFines">Last inn flere</button>
 </div>
+        </div>
+
+        <div v-if="currentView === 'per-user-fine'">
+          <UserFines/>
         </div>
     </div>
 
@@ -85,6 +96,7 @@
 import { ref, onMounted, computed } from 'vue';
 import store from '@/store.js';
 import axios from 'axios';
+import UserFines from './UserFines.vue'
 
 export default {
 
@@ -412,8 +424,36 @@ function hideFineDetails(fine) {
 
 <style scoped>
 
+.fine-menu {
+  border: none;
+  background-color: transparent;
+  color: #ffffff;
+  margin: 0 5px;
+  width: 8rem;
+  height: 2.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  border: 1px solid rgb(44, 44, 44, 0.7);
 
+}
 
+#left-menu {
+  border-radius: 20% 0% 0% 20%;
+}
+
+#right-menu {
+  border-radius: 0% 20% 20% 0%;  
+}
+
+.fine-menu.active {
+  background-color: #6789b6;
+}
+
+.fine-menu-selector {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5vh;
+}
 
 .user-list-div {
   padding: 5px 10px; 
@@ -455,16 +495,7 @@ function hideFineDetails(fine) {
   font-size: 0.8rem;
 }
 
-.defence-container {
-  font-size: 0.7rem;
-  font-style: normal;
-  font-family: 'Arial', sans-serif;
-  border: #d6d6d6 0.5px solid;
-    color: #ffffff; /* White text for contrast */
-    padding: 10px 20px; /* Adjust as needed */
-    text-align: left;
-    line-height: 1.5;
-}
+
 
 .defenceText {
   resize: none;
