@@ -1,13 +1,13 @@
 <template>
     <Header />
     <slot />
+    <Analytics/>
   </template>
   
-  <script>
+  <script setup>
+    import { Analytics } from '@vercel/analytics/react';
   
-  export default {
 
-  };
   </script>
 <style>
 body {
