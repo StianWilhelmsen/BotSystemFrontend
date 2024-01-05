@@ -65,6 +65,8 @@ export default {
       store.firstname = response.data.firstname;
       store.lastname = response.data.lastname;
       store.loggedInUserId = parseInt(response.data.userId, 10);
+      store.userRole = response.data.userRole;
+      console.log(store.userRole)
 
       router.push('/dashboard');
     } else {
@@ -75,32 +77,26 @@ export default {
 }
 onMounted(async () => {
   try {
-    // Make a request to a session verification endpoint
     const response = await axios.get(apiPort.value + '/api/users/verifySession', {
-      withCredentials: true  // This will ensure cookies are included with the request
+      withCredentials: true // Send cookies
     });
 
-    // Check for a specific property to confirm session is valid
-    // For example, you might check response.data.firstname
     if (response.data.firstname) {
       store.isLoggedIn = true;
       store.firstname = response.data.firstname;
       store.lastname = response.data.lastname;
       store.loggedInUserId = response.data.userId;
+      store.userRole = response.data.userRole;
+      console.log(store.userRole)
       console.log("Session is valid");
       router.push('/dashboard')
-      // The server should respond with user details if the session is valid
     } else {
-      // If the server does not respond with the expected user details,
-      // it means the session is not valid.
       store.isLoggedIn = false;
-      // Optionally clear any user details from the state
       router.push('/login');
     }
   } catch (error) {
     console.error('Session verification failed:', error);
     store.isLoggedIn = false;
-    // If there's an error, such as a 401 Unauthorized, redirect to login
     router.push('/login');
   }
 });

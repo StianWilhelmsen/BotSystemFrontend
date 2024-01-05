@@ -17,6 +17,12 @@
                 <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
                 <p>§ {{ fine.fineType.fineName }}</p>
                 <span>{{ formatTimestamp(fine.timestamp) }}</span>
+                <div class="status-container" v-if="!fine.showDetails">
+                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
+                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
+                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
+                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
+                </div>
                 <div v-if="fine.showDetails" class="fine-expanded-details">
                   <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
                   <p class="descriptionText">Begrunnelse:</p>
@@ -33,6 +39,12 @@
                   <div class="defence-given">
                     {{ fine.defence }}
                   </div>
+                </div>
+                <div class="status-container" v-if="fine.showDetails">
+                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
+                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
+                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
+                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
                 </div>
                 </div>
               </div>
@@ -423,6 +435,13 @@ function hideFineDetails(fine) {
 </script>
 
 <style scoped>
+
+.status-image {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  opacity: 0.5;
+}
 
 .fine-menu {
   border: none;

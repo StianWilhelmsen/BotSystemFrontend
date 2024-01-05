@@ -5,6 +5,7 @@ const store = reactive({
   firstname: '',
   lastname: '',
   loggedInUserId: 0,
+  userRole: '',
 });
 
 export default store;

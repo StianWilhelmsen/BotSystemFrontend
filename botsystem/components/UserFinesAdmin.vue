@@ -1,56 +1,67 @@
 <template>
-    <div class="user-fines-container">
-      <div 
-        v-for="(userWithFine, index) in usersWithFines" 
-        :key="index" 
-        class="user-fine-container"
-        @click="toggleExpansion(index)"
-      >
-        <div class="user-details">
-          <div class="user-name">{{ userWithFine.user.firstname }} {{ userWithFine.user.lastname }}</div>
-          <div class="user-fine">{{ userWithFine.totalWeight }}</div>
-        </div>
-        <div v-if="expandedIndex === index" class="fine-details">
-            <div v-if="loadingStates.get(userWithFine.user.id)" class="spinner"></div> <!-- Loading spinner -->
-            <div v-else v-for="(fine, fIndex) in userFinesDetails.get(userWithFine.user.id)" :key="fIndex" class="fine-item" @click.stop="toggleFineDetails(fine)">
-          <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
-          <p>§ {{ fine.fineType.fineName }}</p>
-          <span>{{ formatTimestamp(fine.timestamp) }}</span>
-            <div class="status-container" v-if="!fine.showDetails">
-                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
-                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
-                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
-                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
-                </div>
-          <div v-if="fine.showDetails" class="fine-expanded-details">
-                <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                  <p class="descriptionText">Begrunnelse:</p>
-                  <p class="descriptionText">{{ fine.description }}</p>
-                  <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
+    <div class="admin-wrapper">
+      <div class="title">Admin Page</div>
+        <div class="user-fines-container">
+        <div 
+            v-for="(userWithFine, index) in usersWithFines" 
+            :key="index" 
+            class="user-fine-container"
+            @click="toggleExpansion(index)"
+        >
+            <div class="user-details">
+            <div class="user-name">{{ userWithFine.user.firstname }} {{ userWithFine.user.lastname }}</div>
+            <div class="user-fine">{{ userWithFine.totalWeight }}</div>
+            </div>
+            <div v-if="expandedIndex === index" class="fine-details">
+                <div v-if="loadingStates.get(userWithFine.user.id)" class="spinner"></div> <!-- Loading spinner -->
+                <div v-else v-for="(fine, fIndex) in userFinesDetails.get(userWithFine.user.id)" :key="fIndex" class="fine-item" @click.stop="toggleFineDetails(fine)">
+            <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
+            <p>§ {{ fine.fineType.fineName }}</p>
+            <span>{{ formatTimestamp(fine.timestamp) }}</span>
+            <div v-if="fine.showDetails" class="fine-expanded-details">
+                    <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
+                    <p class="descriptionText">Begrunnelse:</p>
+                    <p class="descriptionText">{{ fine.description }}</p>
+                    <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
 
-                  <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
-                    <button v-if="invalidDefence" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
-                    <textarea class="defenceText" v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
-                    <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
-                 </div>
-                 <div class="defence-container" id="defence-title" v-if="fine.defence">
-                  <div class="title"><b>Forsvar fra den tiltalte:</b></div>
-                  <div class="defence-given">
-                    {{ fine.defence }}
-                  </div>
+                    <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
+                        <button v-if="invalidDefence" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
+                        <textarea class="defenceText" v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
+                        <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
+                    </div>
+                    <div class="defence-container" id="defence-title" v-if="fine.defence">
+                    <div class="title"><b>Forsvar fra den tiltalte:</b></div>
+                    <div class="defence-given">
+                        {{ fine.defence }}
+                    </div>
+                    </div>
+                    <div class="status-container">
+                        <div class="approved-status">
+                            <div v-if="fine.approved" class="title">
+                              <img class="status-image" src="../images/checked.png" alt="Godkjent">
+                            </div>
+                            <div v-else class="title">
+                              <button class="defence-button" @click.prevent.stop="approveFine(fine)">Godkjenn</button>
+                            </div>
+                        </div>
+                        <div class="paid-status">
+                            <div v-if="fine.paid" class="title">
+                              <img class="status-image" src="../images/paid.png" alt="Betalt">
+                            </div>
+                            <div v-else class="title">
+                              <button class="defence-button" v-if="!fine.paid" @click.prevent.stop="payFine(fine)">Betalt</button>
+                            </div>
+
+
+                    </div>
                 </div>
-                <div class="status-container" v-if="fine.showDetails">
-                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
-                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
-                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
-                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
                 </div>
-              </div>
-              </div>
-          <div v-if="!userFinesDetails.get(userWithFine.user.id)" class="fine-details-placeholder">
-          </div>
+            <div v-if="!userFinesDetails.get(userWithFine.user.id)" class="fine-details-placeholder">
+            </div>
+            </div>
         </div>
-      </div>
+        </div>
+    </div>
     </div>
   </template>
 
@@ -66,6 +77,24 @@
   const userFinesDetails = reactive(new Map());
   const loadingStates = reactive(new Map());
   const loggedInUserId = store.loggedInUserId;
+
+  async function approveFine(fine) {
+    try {
+      const response = await axios.put(`${apiPort.value}/api/fine/${fine.id}/approve`);
+      fine.approved = response.data.approved;
+    } catch (error) {
+      console.error("Error approving fine", error);
+    }
+  }
+
+  async function payFine(fine) {
+    try {
+      const response = await axios.put(`${apiPort.value}/api/fine/${fine.id}/pay`);
+      fine.paid = response.data.paid;
+    } catch (error) {
+      console.error("Error paying fine", error);
+    }
+  }
   
   async function retrieveUsersWithFines() {
     try {
@@ -114,11 +143,23 @@ function toggleFineDetails(fine) {
 
 <style scoped>
 
+
+.status-container {
+  display: flex;
+  justify-content: center;
+}
+
 .status-image {
-  width: 20px;
   height: 20px;
-  padding: 5px;
-  opacity: 0.5;
+}
+
+.admin-wrapper {
+    background-color: #1a2438;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
 }
 
 .fine-image {
@@ -143,6 +184,7 @@ function toggleFineDetails(fine) {
   align-items: center; /* Centers items vertically */
   padding: 4px 16px;
   border-bottom: 1px solid rgba(107, 107, 107, 0.3); /* Separator line */
+  width: 15rem;
 }
 
 .user-name {
@@ -155,7 +197,12 @@ function toggleFineDetails(fine) {
 
 
 .user-fines-container {
-  width: 100%;
+    width: 100%;
+    display: flex;
+    width: 40vh;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
 }
 
 .fine-details {

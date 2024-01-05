@@ -6,6 +6,11 @@
         <h1>BeerFine</h1>
       </div>
       <ul class="header-options" :class="{ 'show-menu': showMenu }">
+        <li v-if="store.userRole === 'ADMIN'">
+          <NuxtLink :to="'/Admin'" class="custom-link">Admin</NuxtLink></li>
+        <li v-if="store.isLoggedIn">
+          <NuxtLink :to="'/Dashboard'" class="custom-link">Dashboard</NuxtLink>
+        </li>
         <li v-if="store.isLoggedIn" @click="logout">Logg ut</li>
         <li v-else>
           <NuxtLink :to="'/Login'" class="custom-link">Logg inn</NuxtLink>
