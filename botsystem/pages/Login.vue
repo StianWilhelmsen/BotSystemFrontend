@@ -80,6 +80,7 @@ onMounted(async () => {
     const response = await axios.get(apiPort.value + '/api/users/verifySession', {
       withCredentials: true // Send cookies
     });
+    console.log("Response from the cookie", response.data);
 
     if (response.data.firstname) {
       store.isLoggedIn = true;

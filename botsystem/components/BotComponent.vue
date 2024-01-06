@@ -242,12 +242,14 @@ function compressImage(file) {
 }
 async function retrieveFines(page = 0) {
     try {
+      console.log("Trying to fetch fines")
         const response = await axios.get(apiPort.value + "/api/fine/getFines", {
             params: {
                 page: page,
                 size: 10
             }
         });
+        console.log(response.data)
         if (page === 0) {
             fines.value = response.data;
             if (process.client) {
@@ -259,6 +261,7 @@ async function retrieveFines(page = 0) {
     } catch (error) {
         console.error("Error retrieving fines", error);
     }
+    console.log("Fines retrieved")
 }
 
 function loadMoreFines() {

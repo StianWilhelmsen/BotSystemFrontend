@@ -58,12 +58,12 @@
           firstname: firstname.value,
           lastname: lastname.value,
           email: email.value,
-          password: password.value
+          password: password.value,
+
         };
 
         axios.post(apiPort.value + '/api/users/register', user)
           .then(response => {
-            console.log('Registration success', response.data);
             statusText.value = response.data;
             setTimeout(() => {
               router.push('/login');
