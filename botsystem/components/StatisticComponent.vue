@@ -12,6 +12,7 @@
 <script setup>
 import axios from 'axios';
 import { ref, computed, onMounted } from 'vue';
+import store from '@/store.js';
 
 const totalFines = ref('');
 const mostFines = ref('');
@@ -26,7 +27,7 @@ const userId = ref(null);
 
 // Ensure that we only try to access localStorage when on the client
 if (process.client) {
-  userId.value = localStorage.getItem('userId');
+  userId.value = store.loggedInUserId
 }
 
 async function getStats() {
@@ -37,7 +38,6 @@ async function getStats() {
         const response = await axios.get(`${apiPort}/api/fine/getStats`, {
             params: { userId: userId.value }
         });
-
         if (response.data) {
             totalFines.value = response.data.totalFines;
             mostFines.value = response.data.mostFinedUser;
@@ -51,9 +51,7 @@ async function getStats() {
 }
 
 onMounted(() => {
-    if (userId.value) {
         getStats();
-    }
 });
 
 </script>
