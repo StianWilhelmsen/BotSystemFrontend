@@ -8,7 +8,7 @@
       <ul class="header-options" :class="{ 'show-menu': showMenu }">
         <li v-if="store.userRole === 'ADMIN'">
           <NuxtLink :to="'/Admin'" class="custom-link">Admin</NuxtLink></li>
-        <li v-if="store.isLoggedIn">
+        <li v-if="store.userRole === 'ADMIN'">
           <NuxtLink :to="'/Dashboard'" class="custom-link">Dashboard</NuxtLink>
         </li>
         <li v-if="store.isLoggedIn" @click="logout">Logg ut</li>

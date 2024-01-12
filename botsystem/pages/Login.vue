@@ -66,7 +66,6 @@ export default {
       store.lastname = response.data.lastname;
       store.loggedInUserId = parseInt(response.data.userId, 10);
       store.userRole = response.data.userRole;
-      console.log(store.userRole)
 
       router.push('/dashboard');
     } else {
@@ -88,7 +87,6 @@ onMounted(async () => {
       store.lastname = response.data.lastname;
       store.loggedInUserId = response.data.userId;
       store.userRole = response.data.userRole;
-      console.log(store.userRole)
       console.log("Session is valid");
       router.push('/dashboard')
     } else {

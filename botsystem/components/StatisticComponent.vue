@@ -34,7 +34,6 @@ async function getStats() {
     if (hasFetchedStats) return;
     hasFetchedStats = true;
     try {
-        console.log("Trying to fetch stats");
         const response = await axios.get(`${apiPort}/api/fine/getStats`, {
             params: { userId: userId.value }
         });

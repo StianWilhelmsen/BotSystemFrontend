@@ -15,10 +15,8 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import store from '@/store.js';
-import axios from 'axios';
 import LovverkComponent from '@/components/LovverkComponent.vue'
 import BotComponent from '@/components/BotComponent.vue'
-import StatisticComponent from '@/components/StatisticComponent.vue'
 
 export default {
 
@@ -31,30 +29,8 @@ export default {
     const apiPort = ref(import.meta.env.VITE_API_KEY);
     const currentView = ref('fines');
     onMounted(async () => {
-  try {
-    const response = await axios.get(apiPort.value + '/api/users/verifySession', {
-      withCredentials: true // Send cookies
-    });
-    console.log("Response from the cookie", response.data);
 
-    if (response.data.firstname) {
-      store.isLoggedIn = true;
-      store.firstname = response.data.firstname;
-      store.lastname = response.data.lastname;
-      store.loggedInUserId = response.data.userId;
-      store.userRole = response.data.userRole;
-      console.log(store.userRole)
-      console.log("Session is valid");
-      router.push('/dashboard')
-    } else {
-      store.isLoggedIn = false;
-      router.push('/login');
-    }
-  } catch (error) {
-    console.error('Session verification failed:', error);
-    store.isLoggedIn = false;
-    router.push('/login');
-  }
+
 });
     
     return {
