@@ -24,7 +24,7 @@
           v-model="password"
           required
           autocomplete="off"
-          @keyup.enter="login"
+          
         >
         <label for="password">Password</label>
       </div>
@@ -33,6 +33,7 @@
         <router-link to="/Register">
           <button>Registrer</button>
         </router-link>
+
       </div>
     </div>
   </div>
@@ -43,13 +44,15 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import store from '@/store.js';
+import Cookies from 'js-cookie';
+
 export default {
   setup() {
     const email = ref('');
     const password = ref('');
     const router = useRouter();
-    const isAutofilled = ref(false);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
+
 
     async function login() {
   try {
@@ -60,13 +63,8 @@ export default {
         withCredentials: true
       });
 
-    if (response.data.firstname) {
-      store.isLoggedIn = true;
-      store.firstname = response.data.firstname;
-      store.lastname = response.data.lastname;
-      store.loggedInUserId = parseInt(response.data.userId, 10);
-      store.userRole = response.data.userRole;
-
+    if (response.data.token) {
+      Cookies.set('token', response.data.token, { expires: 999999, secure: true });
       router.push('/dashboard');
     } else {
     }
@@ -74,37 +72,41 @@ export default {
     console.error('Error during login:', error);
   }
 }
-onMounted(async () => {
-  try {
-    const response = await axios.get(apiPort.value + '/api/users/verifySession', {
-      withCredentials: true // Send cookies
-    });
-    console.log("Response from the cookie", response.data);
 
-    if (response.data.firstname) {
-      store.isLoggedIn = true;
-      store.firstname = response.data.firstname;
-      store.lastname = response.data.lastname;
-      store.loggedInUserId = response.data.userId;
-      store.userRole = response.data.userRole;
-      console.log("Session is valid");
-      router.push('/dashboard')
-    } else {
-      store.isLoggedIn = false;
-      router.push('/login');
-    }
-  } catch (error) {
-    console.error('Session verification failed:', error);
-    store.isLoggedIn = false;
-    router.push('/login');
-  }
-});
+onMounted(async () => {
+      const token = Cookies.get('token');
+      if (token) {
+        try {
+          const response = await axios.get(`${apiPort.value}/api/users/verifySession`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.data.firstname) {
+            store.isLoggedIn = true;
+            store.firstname = response.data.firstname;
+            store.lastname = response.data.lastname;
+            store.loggedInUserId = response.data.userId;
+            store.userRole = response.data.userRole;
+            console.log("Session is valid");
+            router.push('/dashboard');
+          } else {
+            throw new Error("Invalid session");
+          }
+        } catch (error) {
+          console.error('Session verification failed:', error);
+          store.isLoggedIn = false;
+          router.push('/login');
+        }
+      } else {
+        console.log("No token found, redirecting to login");
+        router.push('/login');
+      }
+    });
 
     return {
       email,
       password,
-      login,
       router,
+      login
     };
   },
 };
