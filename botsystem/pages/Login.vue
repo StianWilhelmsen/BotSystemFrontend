@@ -35,19 +35,22 @@
         </router-link>
 
       </div>
+      <div>
+        <router-link to="/ResetPassword">
+          <h4><i>Glemt passord</i></h4></router-link>
+      </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import store from '@/store.js';
 import Cookies from 'js-cookie';
+import { strict } from 'assert';
 
-export default {
-  setup() {
     const email = ref('');
     const password = ref('');
     const router = useRouter();
@@ -64,13 +67,17 @@ export default {
       });
 
     if (response.data.token) {
-      Cookies.set('token', response.data.token, { expires: 999999, secure: true });
+      Cookies.set('token', response.data.token, { expires: 999999, secure: true , samSite:'Strict'});
       router.push('/dashboard');
     } else {
     }
   } catch (error) {
     console.error('Error during login:', error);
   }
+}
+
+function goToResetPassword() {
+  router.push('/resetPassword');
 }
 
 onMounted(async () => {
@@ -102,14 +109,6 @@ onMounted(async () => {
       }
     });
 
-    return {
-      email,
-      password,
-      router,
-      login
-    };
-  },
-};
 </script>
 
   
