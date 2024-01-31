@@ -24,11 +24,12 @@ async function sendResetPasswordMail() {
         const response = await axios.post(`${apiPort.value}/api/PasswordReset/resetPasswordMail`, {
           email: email.value
         });
-        
-        if (response.data.status === "success") {
+        if (response.status === 200) {
           statusText.value = "En e-post med instruksjoner for å tilbakestille passordet ditt er sendt til din e-postadresse.";
+          console.log('Success sending reset password mail:', response.status);
         } else {
           statusText.value = "Noe gikk galt. Vennligst prøv igjen.";
+          console.error('Error sending reset password mail:', response.data);
         }
       } catch (error) {
         console.error('Error sending reset password mail:', error);
