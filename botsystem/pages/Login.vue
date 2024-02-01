@@ -36,8 +36,8 @@
 
       </div>
       <div>
-        <router-link to="/ResetPassword">
-          <h4><i>Glemt passord</i></h4></router-link>
+        <router-link to="/RequestResetPassword">
+          <h4 id="forgotten-password"><i>Glemt passord?</i></h4></router-link>
       </div>
     </div>
   </div>
@@ -205,6 +205,17 @@ onMounted(async () => {
 
   .login-form input:-webkit-autofill {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+#forgotten-password {
+  color: white;
+  transition: color 0.1s;
+  border-bottom: #ffffff 1px solid;
+}
+
+#forgotten-password:hover {
+  color: #858585;
+  cursor: pointer;
 }
   </style>
   
