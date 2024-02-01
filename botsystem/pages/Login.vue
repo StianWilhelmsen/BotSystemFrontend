@@ -35,6 +35,7 @@
         </router-link>
 
       </div>
+      {{ statusText }}
       <div>
         <router-link to="/RequestResetPassword">
           <h4 id="forgotten-password"><i>Glemt passord?</i></h4></router-link>
@@ -55,6 +56,7 @@ import { strict } from 'assert';
     const password = ref('');
     const router = useRouter();
     const apiPort = ref(import.meta.env.VITE_API_KEY);
+    const statusText = ref('')
 
 
     async function login() {
@@ -72,6 +74,7 @@ import { strict } from 'assert';
     } else {
     }
   } catch (error) {
+    statusText.value = "Feil brukernavn eller passord.";
     console.error('Error during login:', error);
   }
 }
@@ -201,6 +204,10 @@ onMounted(async () => {
     transition: background-color 0.3s;
     margin: 3px;
   }
+
+  .login-form button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
   
 
   .login-form input:-webkit-autofill {
@@ -217,5 +224,7 @@ onMounted(async () => {
   color: #858585;
   cursor: pointer;
 }
+
+
   </style>
   
