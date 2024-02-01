@@ -25,6 +25,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import store from '@/store.js';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const router = useRouter();
 const isOpen = ref(false);
@@ -43,6 +44,7 @@ async function logout() {
   try {
     await axios.post(apiPort.value + '/api/users/logout', {}, { withCredentials: true });
     store.isLoggedIn = false;
+    Cookies.remove('token');
     router.push('/');
   } catch (error) {
     console.error('Error during logout:', error);

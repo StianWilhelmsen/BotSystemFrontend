@@ -35,19 +35,22 @@
         </router-link>
 
       </div>
+      <div>
+        <router-link to="/RequestResetPassword">
+          <h4 id="forgotten-password"><i>Glemt passord?</i></h4></router-link>
+      </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import store from '@/store.js';
 import Cookies from 'js-cookie';
+import { strict } from 'assert';
 
-export default {
-  setup() {
     const email = ref('');
     const password = ref('');
     const router = useRouter();
@@ -64,13 +67,17 @@ export default {
       });
 
     if (response.data.token) {
-      Cookies.set('token', response.data.token, { expires: 999999, secure: true });
+      Cookies.set('token', response.data.token, { expires: 999999, secure: true , samSite:'Strict'});
       router.push('/dashboard');
     } else {
     }
   } catch (error) {
     console.error('Error during login:', error);
   }
+}
+
+function goToResetPassword() {
+  router.push('/resetPassword');
 }
 
 onMounted(async () => {
@@ -102,14 +109,6 @@ onMounted(async () => {
       }
     });
 
-    return {
-      email,
-      password,
-      router,
-      login
-    };
-  },
-};
 </script>
 
   
@@ -206,6 +205,17 @@ onMounted(async () => {
 
   .login-form input:-webkit-autofill {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+#forgotten-password {
+  color: white;
+  transition: color 0.1s;
+  border-bottom: #ffffff 1px solid;
+}
+
+#forgotten-password:hover {
+  color: #858585;
+  cursor: pointer;
 }
   </style>
   
