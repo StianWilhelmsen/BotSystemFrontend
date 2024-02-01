@@ -63,6 +63,7 @@
     gap: 20px; /* This will add space between each child of .form */
     color: white;
     align-items: center;
+    width: 15rem;
   }
   
   .form input, .form button {
