@@ -88,4 +88,9 @@ async function sendResetPasswordMail() {
     transition: background-color 0.3s;
     margin: 3px;
 }
+
+.form button:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+
+}
 </style>
