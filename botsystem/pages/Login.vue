@@ -70,7 +70,7 @@ import { strict } from 'assert';
 
     if (response.data.token) {
       Cookies.set('token', response.data.token, { expires: 999999, secure: true , samSite:'Strict'});
-      router.push('/dashboard');
+      router.push('/newDashboard');
     } else {
     }
   } catch (error) {
@@ -96,8 +96,7 @@ onMounted(async () => {
             store.lastname = response.data.lastname;
             store.loggedInUserId = response.data.userId;
             store.userRole = response.data.userRole;
-            console.log("Session is valid");
-            router.push('/dashboard');
+            router.push('/newDashboard');
           } else {
             throw new Error("Invalid session");
           }
@@ -107,7 +106,6 @@ onMounted(async () => {
           router.push('/login');
         }
       } else {
-        console.log("No token found, redirecting to login");
         router.push('/login');
       }
     });
