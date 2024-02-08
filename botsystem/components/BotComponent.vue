@@ -1,73 +1,163 @@
 <template>
-    <div class="main-container">
-      <div class="stats-div">
-        <StatisticComponent/>
-      </div>
-      <div class="fine-menu-selector">
-        <button id="left-menu" @click="currentView = 'fines'" :class="{ 'active': currentView === 'fines'}" class="fine-menu">Alle bøter</button>
-        <button id="right-menu" @click="currentView = 'per-user-fine'" :class="{ 'active': currentView === 'per-user-fine'}" class="fine-menu">Bøter per medlem</button>
-      </div>
-        <div class="search-fine-wrapper">
-            <button class="fine-button" @click="openModal">Meld bot</button>
-        </div>
-        <div v-if="currentView === 'fines'" class="fines-container">
-          <ul>
-            <li v-for="fine in fines" :key="fine.id">
-              <div :class="{ 'expanded': fine.showDetails }" class="fine-item" @click="toggleFineDetails(fine)">
-                <span>{{ fine.recipient.firstname }} {{ fine.recipient.lastname }} <strong>{{ fine.weight }}</strong></span>
-                <p>§ {{ fine.fineType.fineName }}</p>
-                <span>{{ formatTimestamp(fine.timestamp) }}</span>
-                <div class="status-container" v-if="!fine.showDetails">
-                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
-                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
-                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
-                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
-                </div>
-                <div v-if="fine.showDetails" class="fine-expanded-details">
-                  <h5 class="fineInfo">Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}</h5>
-                  <p class="descriptionText">Begrunnelse:</p>
-                  <p class="descriptionText">{{ fine.description }}</p>
-                  <img v-if="fine.image" :src="'data:image/jpeg;base64,' + fine.image" alt="Ingen bildebevis funnet" class="fine-image" />
+  <div class="main-container">
+    <div class="stats-div">
+      <StatisticComponent />
+    </div>
+    <div class="fine-menu-selector">
+      <button
+        id="left-menu"
+        @click="currentView = 'fines'"
+        :class="{ active: currentView === 'fines' }"
+        class="fine-menu"
+      >
+        Alle bøter
+      </button>
+      <button
+        id="right-menu"
+        @click="currentView = 'per-user-fine'"
+        :class="{ active: currentView === 'per-user-fine' }"
+        class="fine-menu"
+      >
+        Bøter per medlem
+      </button>
+    </div>
+    <div class="search-fine-wrapper">
+      <button class="fine-button" @click="openModal">Meld bot</button>
+    </div>
+    <div v-if="currentView === 'fines'" class="fines-container">
+      <ul>
+        <li v-for="fine in fines" :key="fine.id">
+          <div
+            :class="{ expanded: fine.showDetails }"
+            class="fine-item"
+            @click="toggleFineDetails(fine)"
+          >
+            <span
+              >{{ fine.recipient.firstname }} {{ fine.recipient.lastname }}
+              <strong>{{ fine.weight }}</strong></span
+            >
+            <p>§ {{ fine.fineType.fineName }}</p>
+            <span>{{ formatTimestamp(fine.timestamp) }}</span>
+            <div class="status-container" v-if="!fine.showDetails">
+              <img
+                v-if="!fine.approved"
+                src="../images/notChecked.png"
+                alt="Ikke Godkjent"
+                class="status-image"
+              />
+              <img
+                v-if="fine.approved"
+                src="../images/checked.png"
+                alt="Godkjent"
+                class="status-image"
+              />
+              <img
+                v-if="!fine.paid"
+                src="../images/notPaid.png"
+                alt="Ikke Betalt"
+                class="status-image"
+              />
+              <img
+                v-if="fine.paid"
+                src="../images/paid.png"
+                alt="Betalt"
+                class="status-image"
+              />
+            </div>
+            <div v-if="fine.showDetails" class="fine-expanded-details">
+              <h5 class="fineInfo">
+                Gitt av: {{ fine.issuer.firstname }} {{ fine.issuer.lastname }}
+              </h5>
+              <p class="descriptionText">Begrunnelse:</p>
+              <p class="descriptionText">{{ fine.description }}</p>
+              <img
+                v-if="fine.image"
+                :src="'data:image/jpeg;base64,' + fine.image"
+                alt="Ingen bildebevis funnet"
+                class="fine-image"
+              />
 
-                  <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
-                    <button v-if="invalidDefence" class="defence-button" @click.prevent.stop="showDefenceTextarea($event, fine)">Legg til forsvar</button>
-                    <textarea class="defenceText" v-if="fine.showDefenceInput" v-model="fine.tempDefence" @click.stop></textarea>
-                    <button class="defence-button" v-if="fine.showDefenceInput" @click.prevent.stop="submitDefence(fine)">Send inn forsvar</button>
-                 </div>
-                 <div class="defence-container" id="defence-title" v-if="fine.defence">
-                  <div class="title"><b>Forsvar fra den tiltalte:</b></div>
-                  <div class="defence-given">
-                    {{ fine.defence }}
-                  </div>
-                </div>
-                <div class="status-container" v-if="fine.showDetails">
-                  <img v-if="!fine.approved" src="../images/notChecked.png" alt="Ikke Godkjent" class="status-image" />
-                  <img v-if="fine.approved" src="../images/checked.png" alt="Godkjent" class="status-image" />
-                  <img v-if="!fine.paid" src="../images/notPaid.png" alt="Ikke Betalt" class="status-image" />
-                  <img v-if="fine.paid" src="../images/paid.png" alt="Betalt" class="status-image" />
-                </div>
+              <div v-if="fine.recipient.id === loggedInUserId && !fine.defence">
+                <button
+                  v-if="invalidDefence"
+                  class="defence-button"
+                  @click.prevent.stop="showDefenceTextarea($event, fine)"
+                >
+                  Legg til forsvar
+                </button>
+                <textarea
+                  class="defenceText"
+                  v-if="fine.showDefenceInput"
+                  v-model="fine.tempDefence"
+                  @click.stop
+                ></textarea>
+                <button
+                  class="defence-button"
+                  v-if="fine.showDefenceInput"
+                  @click.prevent.stop="submitDefence(fine)"
+                >
+                  Send inn forsvar
+                </button>
+              </div>
+              <div
+                class="defence-container"
+                id="defence-title"
+                v-if="fine.defence"
+              >
+                <div class="title"><b>Forsvar fra den tiltalte:</b></div>
+                <div class="defence-given">
+                  {{ fine.defence }}
                 </div>
               </div>
-              
-            </li>
-          </ul>
-          <div class="load-more-wrapper">
-    <button class="fine-button" @click="loadMoreFines">Last inn flere</button>
-</div>
-        </div>
-
-        <div v-if="currentView === 'per-user-fine'">
-          <UserFines/>
-        </div>
+              <div class="status-container" v-if="fine.showDetails">
+                <img
+                  v-if="!fine.approved"
+                  src="../images/notChecked.png"
+                  alt="Ikke Godkjent"
+                  class="status-image"
+                />
+                <img
+                  v-if="fine.approved"
+                  src="../images/checked.png"
+                  alt="Godkjent"
+                  class="status-image"
+                />
+                <img
+                  v-if="!fine.paid"
+                  src="../images/notPaid.png"
+                  alt="Ikke Betalt"
+                  class="status-image"
+                />
+                <img
+                  v-if="fine.paid"
+                  src="../images/paid.png"
+                  alt="Betalt"
+                  class="status-image"
+                />
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <div class="load-more-wrapper">
+        <button class="fine-button" @click="loadMoreFines">
+          Last inn flere
+        </button>
+      </div>
     </div>
 
-    <div class="modal" v-if="isModalOpen">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <div class="modal-header">
-          <h2>Bot innmelding</h2>
-        </div>
-        <div class="input-row">
+    <div v-if="currentView === 'per-user-fine'">
+      <UserFines />
+    </div>
+  </div>
+
+  <div class="modal" v-if="isModalOpen">
+    <div class="modal-content">
+      <span class="close" @click="closeModal">&times;</span>
+      <div class="modal-header">
+        <h2>Bot innmelding</h2>
+      </div>
+      <div class="input-row">
         <div class="dropdown">
           <input
             type="text"
@@ -75,62 +165,80 @@
             v-model="searchQuery"
             @input="handleSearchInput"
             @click="showUserList = true"
+          />
+          <ul
+            class="user-list"
+            v-if="showUserList && searchQuery && filteredUsers.length > 0"
           >
-          <ul class="user-list" v-if="showUserList && searchQuery && filteredUsers.length > 0">
-            <li v-for="user in filteredUsers" :key="user" @click="selectUser(user)">{{ user }}</li>
+            <li
+              v-for="user in filteredUsers"
+              :key="user"
+              @click="selectUser(user)"
+            >
+              {{ user }}
+            </li>
           </ul>
         </div>
       </div>
-        <div class="input-row">
-            <select id="fineType" v-model="selectedFineType" class="fine-type-select">
-  <option value="" disabled selected>Velg et lovbrudd</option>
-  <option v-for="fineType in fineTypes" :key="fineType.fineType" :value="fineType">{{ fineType }}</option>
-</select>
-        </div>
-        <div class="input-row">
-          <input type="number" placeholder="Vekting" v-model="weight">
-        </div>
-        <div class="input-row">
-          <textarea placeholder="Begrunnelse for bøtelegging" v-model="description"></textarea>
-        </div>
-        <input type="file" accept="image/*" @change="handleImageUpload" />
-        <div class="modal-footer">
-          <button @click="postFine()" :disabled="isSubmitting">Meld inn</button>
-        </div>
-        <p v-if="isSubmitting">Prøver å poste bot...</p>
-        <p> {{ statusText }}</p>
+      <div class="input-row">
+        <select
+          id="fineType"
+          v-model="selectedFineType"
+          class="fine-type-select"
+        >
+          <option value="" disabled selected>Velg et lovbrudd</option>
+          <option
+            v-for="fineType in fineTypes"
+            :key="fineType.fineType"
+            :value="fineType"
+          >
+            {{ fineType }}
+          </option>
+        </select>
       </div>
+      <div class="input-row">
+        <input type="number" placeholder="Vekting" v-model="weight" />
+      </div>
+      <div class="input-row">
+        <textarea
+          placeholder="Begrunnelse for bøtelegging"
+          v-model="description"
+        ></textarea>
+      </div>
+      <input type="file" accept="image/*" @change="handleImageUpload" />
+      <div class="modal-footer">
+        <button @click="postFine()" :disabled="isSubmitting">Meld inn</button>
+      </div>
+      <p v-if="isSubmitting">Prøver å poste bot...</p>
+      <p>{{ statusText }}</p>
     </div>
-    <div class="overlay" v-if="isModalOpen" @click="closeModal"></div>
+  </div>
+  <div class="overlay" v-if="isModalOpen" @click="closeModal"></div>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
-import store from '@/store.js';
-import axios from 'axios';
-import UserFines from './UserFines.vue'
+import { ref, onMounted, computed } from "vue";
+import store from "@/store.js";
+import axios from "axios";
+import UserFines from "./UserFines.vue";
 
 export default {
-
-
-
-
   setup() {
     const router = useRouter();
     const firstName = ref(store.firstname);
-    const recipientFirstname = ref('')
-    const recipientLastname = ref('')
+    const recipientFirstname = ref("");
+    const recipientLastname = ref("");
     const isModalOpen = ref(false);
     const userList = ref([]);
     const fineTypes = ref([]);
-    const selectedFineType = ref('');
-    const searchQuery = ref('');
+    const selectedFineType = ref("");
+    const searchQuery = ref("");
     const showUserList = ref(false);
     const weight = ref();
-    const description = ref('');
-    const statusText = ref('')
+    const description = ref("");
+    const statusText = ref("");
     const fines = ref([]);
-    const selectedFine = ref(null)
+    const selectedFine = ref(null);
     const timestamp = new Date().toISOString();
     const imageFile = ref(null);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
@@ -139,140 +247,150 @@ export default {
     const isButtonVisible = ref(true);
     const currentPage = ref(0);
     const invalidDefence = ref(true);
-    const currentView = ref('fines')
-    const selectedUserFines = ref([])
+    const currentView = ref("fines");
+    const selectedUserFines = ref([]);
 
     const sortedUsers = computed(() => {
-  return userList.value.slice().sort((a, b) => a.localeCompare(b));
-});
+      return userList.value.slice().sort((a, b) => a.localeCompare(b));
+    });
 
-const fetchFinesForUser = async (user) => {
-  try {
-    const response = await axios.get(`${apiPort.value}/api/fines`, { params: { name: `${user.firstname} ${user.lastname}` }});
-    selectedUserFines.value = response.data;
-  } catch (error) {
-    console.error("Error fetching fines for user", error);
-  }
-};
-
+    const fetchFinesForUser = async (user) => {
+      try {
+        const response = await axios.get(`${apiPort.value}/api/fines`, {
+          params: { name: `${user.firstname} ${user.lastname}` },
+        });
+        selectedUserFines.value = response.data;
+      } catch (error) {
+        console.error("Error fetching fines for user", error);
+      }
+    };
 
     async function handleImageUpload(event) {
-  const file = event.target.files[0];
-  try {
-    const compressedImage = await compressImage(file);
-    imageFile.value = compressedImage;
-  } catch (err) {
-    console.error('Error compressing image', err);
-  }
-}
+      const file = event.target.files[0];
+      try {
+        const compressedImage = await compressImage(file);
+        imageFile.value = compressedImage;
+      } catch (err) {
+        console.error("Error compressing image", err);
+      }
+    }
 
     onBeforeMount(() => {
       if (!store.isLoggedIn) {
-        router.push('/login')
+        router.push("/login");
       }
     });
 
     onMounted(() => {
       if (process.client) {
-        const finesFromLocalStorage = localStorage.getItem('fines');
+        const finesFromLocalStorage = localStorage.getItem("fines");
         if (finesFromLocalStorage) {
           fines.value = JSON.parse(finesFromLocalStorage);
         }
       }
       if (store.isLoggedIn) {
-    retrieveFines();
-    retrieveUsers();
-    retrieveFineTypes();
+        retrieveFines();
+        retrieveUsers();
+        retrieveFineTypes();
       }
-});
-
+    });
 
     function showDefenceTextarea(event, fine) {
       event.stopPropagation();
       fine.showDefenceInput = true;
       isButtonVisible.value = false;
       invalidDefence.value = false;
-
-}
-
-async function submitDefence(fine) {
-  try {
-    const response = await axios.post(`${apiPort.value}/api/fine/addDefence?fineId=${fine.id}`, {
-      defence: fine.tempDefence
-    });
-    
-    if (response.status === 200) {
-      fine.defence = fine.tempDefence;
-      fine.showDefenceInput = false;
-    } else {
-      console.error("Error adding defence:", response.data);
     }
-  } catch (error) {
-    console.error("Error adding defence:", error);
-  }
-}
-    
-function formatTimestamp(timestamp) {
-  if (timestamp) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    const formattedDate = new Date(timestamp).toLocaleString('en-GB', options);
-    return formattedDate;
-  }
-  return '';
-}
 
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.3);
-    };
-    img.onerror = (err) => reject(err);
-  });
-}
-async function retrieveFines(page = 0) {
-    try {
+    async function submitDefence(fine) {
+      try {
+        const response = await axios.post(
+          `${apiPort.value}/api/fine/addDefence?fineId=${fine.id}`,
+          {
+            defence: fine.tempDefence,
+          },
+        );
+
+        if (response.status === 200) {
+          fine.defence = fine.tempDefence;
+          fine.showDefenceInput = false;
+        } else {
+          console.error("Error adding defence:", response.data);
+        }
+      } catch (error) {
+        console.error("Error adding defence:", error);
+      }
+    }
+
+    function formatTimestamp(timestamp) {
+      if (timestamp) {
+        const options = {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        };
+        const formattedDate = new Date(timestamp).toLocaleString(
+          "en-GB",
+          options,
+        );
+        return formattedDate;
+      }
+      return "";
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          const width = img.width;
+          const height = img.height;
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.3);
+        };
+        img.onerror = (err) => reject(err);
+      });
+    }
+    async function retrieveFines(page = 0) {
+      try {
         const response = await axios.get(apiPort.value + "/api/fine/getFines", {
-            params: {
-                page: page,
-                size: 10
-            }
+          params: {
+            page: page,
+            size: 10,
+          },
         });
         if (page === 0) {
-            fines.value = response.data;
-            if (process.client) {
-                localStorage.setItem('fines', JSON.stringify(response.data));
-            }
+          fines.value = response.data;
+          if (process.client) {
+            localStorage.setItem("fines", JSON.stringify(response.data));
+          }
         } else {
-            fines.value = [...fines.value, ...response.data];
+          fines.value = [...fines.value, ...response.data];
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error retrieving fines", error);
+      }
     }
-}
 
-function loadMoreFines() {
-    currentPage.value += 1;
-    retrieveFines(currentPage.value);
-}
-
+    function loadMoreFines() {
+      currentPage.value += 1;
+      retrieveFines(currentPage.value);
+    }
 
     function toggleFineDetails(fine) {
-  fine.showDetails = !fine.showDetails;
-}
+      fine.showDetails = !fine.showDetails;
+    }
 
-function hideFineDetails(fine) {
-  fine.showDetails = false;
-}
+    function hideFineDetails(fine) {
+      fine.showDetails = false;
+    }
 
     async function retrieveFineTypes() {
       try {
@@ -285,7 +403,7 @@ function hideFineDetails(fine) {
 
     async function retrieveUsers() {
       try {
-        const response = await axios.get(apiPort.value +"/api/users/getUsers");
+        const response = await axios.get(apiPort.value + "/api/users/getUsers");
         userList.value = response.data;
       } catch (error) {
         console.error("Error retrieving users", error);
@@ -293,106 +411,121 @@ function hideFineDetails(fine) {
     }
 
     function openModal() {
-        isModalOpen.value = true;
+      isModalOpen.value = true;
     }
 
     function closeModal() {
-        isModalOpen.value = false;
+      isModalOpen.value = false;
     }
 
     const filteredUsers = computed(() => {
-        const query = searchQuery.value.trim().toLowerCase();
-        if (!query) return userList.value;
-        return userList.value.filter(user => user.toLowerCase().includes(query));
+      const query = searchQuery.value.trim().toLowerCase();
+      if (!query) return userList.value;
+      return userList.value.filter((user) =>
+        user.toLowerCase().includes(query),
+      );
     });
 
     function handleSearchInput(event) {
-        searchQuery.value = event.target.value;
+      searchQuery.value = event.target.value;
     }
 
     function selectUser(user) {
-    const names = user.split(' ');
-    if(names.length > 1) {
-        recipientFirstname.value = names.slice(0, -1).join(' ');
-        recipientLastname.value = names[names.length - 1]; 
-    } else {
-        recipientFirstname.value = names[0]; 
-        recipientLastname.value = ''; 
+      const names = user.split(" ");
+      if (names.length > 1) {
+        recipientFirstname.value = names.slice(0, -1).join(" ");
+        recipientLastname.value = names[names.length - 1];
+      } else {
+        recipientFirstname.value = names[0];
+        recipientLastname.value = "";
+      }
+      searchQuery.value = user;
+      showUserList.value = false;
     }
-    searchQuery.value = user;
-    showUserList.value = false;
-}
 
     async function postFine() {
-
       if (!selectedFineType.value) {
         statusText.value = "Vennligst velg et lovbrudd.";
         return;
-    }
+      }
 
-    if (!recipientFirstname.value || !recipientLastname.value) {
+      if (!recipientFirstname.value || !recipientLastname.value) {
         statusText.value = "Vennligst velg hvem som har begått lovbruddet.";
         return;
-    }
+      }
 
-    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-    if (imageFile.value && imageFile.value.size > MAX_IMAGE_SIZE) {
-        statusText.value = "Bildet er for stort. Vennligst last opp et bilde som er mindre enn 5MB.";
+      const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+      if (imageFile.value && imageFile.value.size > MAX_IMAGE_SIZE) {
+        statusText.value =
+          "Bildet er for stort. Vennligst last opp et bilde som er mindre enn 5MB.";
         return;
-    }
-    try {
+      }
+      try {
         const formData = new FormData();
 
-        formData.append('issuer', JSON.stringify({
+        formData.append(
+          "issuer",
+          JSON.stringify({
             firstname: store.firstname,
-            lastname: store.lastname
-        }));
-        formData.append('recipient', JSON.stringify({
+            lastname: store.lastname,
+          }),
+        );
+        formData.append(
+          "recipient",
+          JSON.stringify({
             firstname: recipientFirstname.value,
-            lastname: recipientLastname.value
-        }));
-        formData.append('fineType', JSON.stringify(selectedFineType.value));
-        formData.append('weight', weight.value);
-        formData.append('description', description.value);
-        formData.append('timestamp', timestamp);
+            lastname: recipientLastname.value,
+          }),
+        );
+        formData.append("fineType", JSON.stringify(selectedFineType.value));
+        formData.append("weight", weight.value);
+        formData.append("description", description.value);
+        formData.append("timestamp", timestamp);
 
         if (imageFile.value) {
-      formData.append('image', imageFile.value);
-    }
-    isSubmitting.value = true;
-    const response = await axios.post(apiPort.value+'/api/fine/postFine', formData, {
+          formData.append("image", imageFile.value);
+        }
+        isSubmitting.value = true;
+        const response = await axios.post(
+          apiPort.value + "/api/fine/postFine",
+          formData,
+          {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
         if (response.status === 200) {
           statusText.value = "Bot meldt inn";
-          recipientFirstname.value = '';
-          recipientLastname.value = '';
-          selectedFineType.value = '';
-          weight.value = '';
-          description.value = '';
+          recipientFirstname.value = "";
+          recipientLastname.value = "";
+          selectedFineType.value = "";
+          weight.value = "";
+          description.value = "";
           imageFile.value = null;
-          searchQuery.value = '';
-          retrieveFines()
+          searchQuery.value = "";
+          retrieveFines();
           setTimeout(() => {
-            closeModal()
-          }, 2000)
-      } else {
-        statusText.value = "Noe gikk galt. Vennligst prøv igjen.";
-      }
-    } catch (error) {
-        console.error('Error saving fine:', error);
-        if (error.response && error.response.data && error.response.data.message) {
-            statusText.value = error.response.data.message; 
-          } else {
-            statusText.value = "En feil oppstod under innsending. Vennligst prøv igjen.";
+            closeModal();
+          }, 2000);
+        } else {
+          statusText.value = "Noe gikk galt. Vennligst prøv igjen.";
         }
+      } catch (error) {
+        console.error("Error saving fine:", error);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          statusText.value = error.response.data.message;
+        } else {
+          statusText.value =
+            "En feil oppstod under innsending. Vennligst prøv igjen.";
+        }
+      }
+      isSubmitting.value = false;
     }
-    isSubmitting.value = false;
-    }
-    
-    
 
     return {
       firstName,
@@ -427,14 +560,13 @@ function hideFineDetails(fine) {
       invalidDefence,
       currentView,
       sortedUsers,
-      selectedUserFines
+      selectedUserFines,
     };
   },
 };
 </script>
 
 <style scoped>
-
 .status-image {
   width: 20px;
   height: 20px;
@@ -452,7 +584,6 @@ function hideFineDetails(fine) {
   margin-bottom: 1rem;
   cursor: pointer;
   border: 1px solid rgb(44, 44, 44, 0.7);
-
 }
 
 #left-menu {
@@ -460,7 +591,7 @@ function hideFineDetails(fine) {
 }
 
 #right-menu {
-  border-radius: 0% 20% 20% 0%;  
+  border-radius: 0% 20% 20% 0%;
 }
 
 .fine-menu.active {
@@ -474,7 +605,7 @@ function hideFineDetails(fine) {
 }
 
 .user-list-div {
-  padding: 5px 10px; 
+  padding: 5px 10px;
   width: 100%;
   border-radius: 8px;
 }
@@ -513,37 +644,41 @@ function hideFineDetails(fine) {
   font-size: 0.8rem;
 }
 
-
-
 .defenceText {
   resize: none;
   font-size: 0.8rem;
   font-style: normal;
-  font-family: 'Arial', sans-serif; /* Using Arial as a base font */
+  font-family: "Arial", sans-serif; /* Using Arial as a base font */
   width: 90%;
 }
 
 .defence-button {
-    color: #ffffff; 
-    padding: 10px 20px; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    transition: background-color 0.3s, transform 0.3s; 
-    background-color: transparent;
-    color: #d6d6d6;
-    padding: 10px;
-    margin: 10px 0;
-    border: #d6d6d6 0.5px solid;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: 0 0 0px rgba(228, 228, 228, 0);
-    width: 90%;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+  background-color: transparent;
+  color: #d6d6d6;
+  padding: 10px;
+  margin: 10px 0;
+  border: #d6d6d6 0.5px solid;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+  box-shadow: 0 0 0px rgba(228, 228, 228, 0);
+  width: 90%;
 }
 
 .defence-button:hover {
- /* Darkened gradient for hover effect */
-    transform: scale(1.05); /* Slightly enlarge the button on hover for a subtle effect */
+  /* Darkened gradient for hover effect */
+  transform: scale(
+    1.05
+  ); /* Slightly enlarge the button on hover for a subtle effect */
 }
 
 .descriptionText {
@@ -561,39 +696,40 @@ textarea {
   border-radius: 8px;
   color: #ffffff; /* White text for contrast */
   font-style: normal;
-    font-family: 'Arial', sans-serif; /* Using Arial as a base font */
-    font-size: 16px; /* Adjust for readability */
-    padding: 10px; /* Padding for better text alignment */
-    line-height: 1.5; /* Spacing between lines for readability */
-    transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus effect */
+  font-family: "Arial", sans-serif; /* Using Arial as a base font */
+  font-size: 16px; /* Adjust for readability */
+  padding: 10px; /* Padding for better text alignment */
+  line-height: 1.5; /* Spacing between lines for readability */
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s; /* Smooth transition for focus effect */
 }
 
 textarea:focus {
-    border-color: #4a6fa1; /* or any other color you prefer */
-    outline: none; /* to remove the default browser outline */
-    box-shadow: none; /* if you want to remove any potential shadow */
+  border-color: #4a6fa1; /* or any other color you prefer */
+  outline: none; /* to remove the default browser outline */
+  box-shadow: none; /* if you want to remove any potential shadow */
 }
-
-
 
 .fine-type-select {
-    width: 100%; /* Full width within its container */
-    padding: 10px;
-    background-color: #24324e; /* Dark blue background to match the modal */
-    border: 1px solid #4a6fa1; /* Lighter blue border for visibility */
-    border-radius: 8px;
-    color: #ffffff; /* White text for contrast */
-    font-size: 16px; /* Adjust font size for readability */
-    appearance: none; /* Remove default appearance */
-    outline: none; /* Remove focus outline */
-    cursor: pointer; /* Hand cursor for dropdown */
+  width: 100%; /* Full width within its container */
+  padding: 10px;
+  background-color: #24324e; /* Dark blue background to match the modal */
+  border: 1px solid #4a6fa1; /* Lighter blue border for visibility */
+  border-radius: 8px;
+  color: #ffffff; /* White text for contrast */
+  font-size: 16px; /* Adjust font size for readability */
+  appearance: none; /* Remove default appearance */
+  outline: none; /* Remove focus outline */
+  cursor: pointer; /* Hand cursor for dropdown */
 }
-
 
 .fine-expanded-details {
   background-color: transparent;
   overflow: hidden;
-  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transition:
+    max-height 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
   max-height: 0;
   opacity: 0;
 }
@@ -604,11 +740,11 @@ textarea:focus {
   max-width: 40vh;
 }
 .fine-image {
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-    display: block; 
-    margin: 0 auto; 
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 
 .fines-container {
@@ -627,7 +763,7 @@ textarea:focus {
 }
 
 .fines-container::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .fine-details {
@@ -642,58 +778,60 @@ textarea:focus {
   margin: 0;
 }
 
+.fine-item {
+  background-color: transparent;
+  color: #d6d6d6;
+  padding: 10px;
+  margin: 10px 0;
+  border: #d6d6d6 0.5px solid;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+  width: 250px;
+  box-shadow: 0 0 0px rgba(228, 228, 228, 0);
+}
 
-  .fine-item {
-    background-color: transparent;
-    color: #d6d6d6;
-    padding: 10px;
-    margin: 10px 0;
-    border: #d6d6d6 0.5px solid;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    width: 250px;
-    box-shadow: 0 0 0px rgba(228, 228, 228, 0);
-  }
+.fine-item:hover {
+  box-shadow: 0 0 10px rgba(228, 228, 228, 0.2);
+}
 
-  .fine-item:hover {
-    box-shadow: 0 0 10px rgba(228, 228, 228, 0.2);
-  }
+.fine-item span {
+  display: block;
+  margin-bottom: 5px;
+}
 
-  .fine-item span {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  ul {
-    margin: 0px;
-    padding: 0;
-  }
+ul {
+  margin: 0px;
+  padding: 0;
+}
 .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #24324e;
-    border-radius: 8px;
-    padding: 18px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #24324e;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
 }
 
 .modal textarea {
-    width: 20rem;
-    height: 13rem;
+  width: 20rem;
+  height: 13rem;
 }
 
 .modal-content {
-    color: #ffffff;
+  color: #ffffff;
 }
 
-.modal-header, .modal-footer {
-    align-items: center;
-    justify-content: center;
-    display: flex;
+.modal-header,
+.modal-footer {
+  align-items: center;
+  justify-content: center;
+  display: flex;
 }
 
 .modal-footer button {
@@ -707,14 +845,14 @@ textarea:focus {
 }
 
 .modal input {
-    width: 90%; /* Full width within its container */
-    padding: 10px;
-    background-color: transparent;
-    border: 0.5px solid rgb(180, 180, 180);
-    border-radius: 8px;
-    color: #ffffff;
-    outline: none;
-    font-size: medium;
+  width: 90%; /* Full width within its container */
+  padding: 10px;
+  background-color: transparent;
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 8px;
+  color: #ffffff;
+  outline: none;
+  font-size: medium;
 }
 
 .input-row {
@@ -732,35 +870,31 @@ textarea:focus {
 }
 
 .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
 }
 
-
-
-
-
 .welcome-wrapper {
-    text-align: center;
-    color: rgb(231, 231, 231);
-    margin-top: 4vh;
-    margin-bottom: 10vh;
+  text-align: center;
+  color: rgb(231, 231, 231);
+  margin-top: 4vh;
+  margin-bottom: 10vh;
 }
 
 .welcome-wrapper h1 {
-    margin: 0;
+  margin: 0;
 }
 
 .main-container {
-    display: flex;
-    width: 90vh;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 auto;
-  }
+  display: flex;
+  width: 90vh;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
 
 .fine-button {
   padding: 10px 20px;
@@ -775,7 +909,6 @@ textarea:focus {
 }
 
 .fine-button:hover {
-
 }
 
 .fine-button:active {
@@ -786,7 +919,7 @@ textarea:focus {
   position: relative;
 }
 
-.filter-div input{
+.filter-div input {
   margin-top: 10px;
   padding: 10px;
   background-color: transparent;
@@ -883,7 +1016,4 @@ input[type="number"] {
     padding: 6px 10px; /* Adjusted padding */
   }
 }
-
-
-
 </style>

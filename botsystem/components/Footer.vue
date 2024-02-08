@@ -1,20 +1,10 @@
 <template>
-
-<div class="footer-container">
-    <div>
-        BeerFineTM
-    </div>
-    
-
-
-</div>
-
+  <div class="footer-container">
+    <div>BeerFineTM</div>
+  </div>
 </template>
 
-
-<script>
-
-</script>
+<script></script>
 
 <style scoped>
 .footer-container {
@@ -25,7 +15,5 @@
   height: 12vh;
   background-color: #24324e;
   color: white;
-
 }
-
 </style>

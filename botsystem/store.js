@@ -1,11 +1,11 @@
-import { reactive } from 'vue';
+import { reactive } from "vue";
 
 const store = reactive({
   isLoggedIn: false,
-  firstname: '',
-  lastname: '',
+  firstname: "",
+  lastname: "",
   loggedInUserId: 0,
-  userRole: '',
+  userRole: "",
 });
 
 export default store;

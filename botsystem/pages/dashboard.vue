@@ -2,10 +2,22 @@
   <div class="dashboard-wrapper">
     <div class="welcome-wrapper">
       <div class="menu-navigator">
-        <button @click="currentView = 'fines'" :class="{ 'active': currentView === 'fines' }" class="menu-item">Bøter</button>
-        <button @click="currentView = 'lovverk'" :class="{ 'active': currentView === 'lovverk' }" class="menu-item">Lovverk</button>
+        <button
+          @click="currentView = 'fines'"
+          :class="{ active: currentView === 'fines' }"
+          class="menu-item"
+        >
+          Bøter
+        </button>
+        <button
+          @click="currentView = 'lovverk'"
+          :class="{ active: currentView === 'lovverk' }"
+          class="menu-item"
+        >
+          Lovverk
+        </button>
       </div>
-    
+
       <BotComponent v-if="currentView === 'fines'" />
       <LovverkComponent v-if="currentView === 'lovverk'" />
     </div>
@@ -13,36 +25,28 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
-import store from '@/store.js';
-import LovverkComponent from '@/components/LovverkComponent.vue'
-import BotComponent from '@/components/BotComponent.vue'
+import { ref, onMounted, computed } from "vue";
+import store from "@/store.js";
+import LovverkComponent from "@/components/LovverkComponent.vue";
+import BotComponent from "@/components/BotComponent.vue";
 
 export default {
-
-
-
-
   setup() {
     const router = useRouter();
     const firstName = ref(store.firstname);
     const apiPort = ref(import.meta.env.VITE_API_KEY);
-    const currentView = ref('fines');
-    onMounted(async () => {
+    const currentView = ref("fines");
+    onMounted(async () => {});
 
-
-});
-    
     return {
       firstName,
-      currentView
+      currentView,
     };
   },
 };
 </script>
 
 <style scoped>
-
 .stats-div {
   margin-bottom: 2vh;
 }
@@ -63,22 +67,20 @@ export default {
 }
 
 .menu-item.active {
-  color: rgb(50, 197, 247); 
+  color: rgb(50, 197, 247);
   border-bottom: 1px solid rgb(50, 197, 247); /* Optional: if you want a bottom border */
 }
 
-
-
 .main-container input {
-    background-color: #1a2438;
-    border: none;
-    border-radius: 8px;
-    color: #ffffff;
-    outline: none;
-    font-size: medium;
-  }
+  background-color: #1a2438;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  outline: none;
+  font-size: medium;
+}
 
-  .dashboard-wrapper {
+.dashboard-wrapper {
   background-color: #1a2438;
   width: 100%;
   display: flex;
@@ -87,25 +89,23 @@ export default {
 }
 
 .welcome-wrapper {
-    text-align: center;
-    color: rgb(231, 231, 231);
-    margin-top: 4vh;
-    margin-bottom: 10vh;
+  text-align: center;
+  color: rgb(231, 231, 231);
+  margin-top: 4vh;
+  margin-bottom: 10vh;
 }
 
 .welcome-wrapper h1 {
-    margin: 0;
+  margin: 0;
 }
 
 .main-container {
-    display: flex;
-    width: 40vh;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 auto;
-  }
-
-
+  display: flex;
+  width: 40vh;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -165,7 +165,4 @@ input[type="number"] {
     padding: 6px 10px; /* Adjusted padding */
   }
 }
-
-
-
 </style>
