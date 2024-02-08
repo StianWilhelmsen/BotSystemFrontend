@@ -5,7 +5,7 @@
                 <h2>Grupper</h2>
             </div>
             <div class="group-list">
-                <div class="group-item" v-for="group in groups" :key="group.id">
+                <div class="group-item" v-for="group in groups" :key="group.id" @click="openGroup(group.id)">
                     <h3>{{ group.name }}</h3>
                     <img v-if="group.logo" :src="`data:image/jpeg;base64,${group.logo}`" alt="Group Logo" class="group-logo"/>
                 </div>
@@ -17,17 +17,22 @@
     </div>
 </template>
 
+
 <script setup>
 import axios from 'axios';
 import store from '@/store.js';
+import { useRouter } from 'vue-router';
+
 
 const apiPort = ref(import.meta.env.VITE_API_KEY);
 const groups = ref([]);
+const userId = store.loggedInUserId;
+const router = useRouter();
 
 onMounted(async () => {
     console.log('Fetching groups');
-    console.log(store.loggedInUserId)
-    const response = await axios.get(`${apiPort.value}/api/groups/getGroups/${store.loggedInUserId}`);
+    console.log(userId)
+    const response = await axios.get(`${apiPort.value}/api/groups/getGroups/${userId}`);
     if (response.status === 200) {
         console.log('Groups fetched successfully:', response.data);
         groups.value = response.data;
@@ -35,6 +40,12 @@ onMounted(async () => {
         console.error('Error fetching groups:', response.data);
     }
 });
+
+const openGroup = (groupId) => {
+    console.log('Opening group:', groupId);
+    store.currentGroupId = groupId;
+    router.push('/GroupDashboard');
+}
 </script>
 
 <style scoped>
