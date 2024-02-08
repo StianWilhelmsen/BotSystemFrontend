@@ -1,7 +1,4 @@
-<template>
-bruva
-
-</template>
+<template>bruva</template>
 
 <script setup>
 import axios from 'axios';
@@ -12,11 +9,6 @@ onMounted(async () => {
         const response = await axios.get(apiPort.value + 'api/groups')
     }
 })
-
 </script>
 
-<style scoped>
-
-
-
-</style>
+<style scoped></style>

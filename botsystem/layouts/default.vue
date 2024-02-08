@@ -1,15 +1,12 @@
 <template>
-    <Header />
-    <slot />
-  </template>
-  
-  <script setup>
-  
+  <Header />
+  <slot />
+</template>
 
-  </script>
+<script setup></script>
 <style>
 body {
-margin: 0px;
-font-family: sans-serif;
+  margin: 0px;
+  font-family: sans-serif;
 }
 </style>

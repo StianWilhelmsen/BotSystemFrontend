@@ -2,12 +2,13 @@
   <div class="header-wrapper">
     <div class="header-content">
       <div @click="goHome" class="header-title">
-        <img class="imgLogo" src="../images/beerlogo.png">
+        <img class="imgLogo" src="../images/beerlogo.png" />
         <h1>BeerFine</h1>
       </div>
       <ul class="header-options" :class="{ 'show-menu': showMenu }">
         <li v-if="store.userRole === 'ADMIN' && store.isLoggedIn">
-          <NuxtLink :to="'/Admin'" class="custom-link">Admin</NuxtLink></li>
+          <NuxtLink :to="'/Admin'" class="custom-link">Admin</NuxtLink>
+        </li>
         <li v-if="store.userRole === 'ADMIN'">
           <NuxtLink :to="'/Dashboard'" class="custom-link">Dashboard</NuxtLink>
         </li>
@@ -21,11 +22,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import store from '@/store.js';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import store from "@/store.js";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const router = useRouter();
 const isOpen = ref(false);
@@ -34,20 +35,24 @@ const apiPort = ref(import.meta.env.VITE_API_KEY);
 
 function goHome() {
   if (store.isLoggedIn) {
-    router.push('/dashboard');
+    router.push("/dashboard");
   } else {
-    router.push('/');
+    router.push("/");
   }
 }
 
 async function logout() {
   try {
-    await axios.post(apiPort.value + '/api/users/logout', {}, { withCredentials: true });
+    await axios.post(
+      apiPort.value + "/api/users/logout",
+      {},
+      { withCredentials: true },
+    );
     store.isLoggedIn = false;
-    Cookies.remove('token');
-    router.push('/');
+    Cookies.remove("token");
+    router.push("/");
   } catch (error) {
-    console.error('Error during logout:', error);
+    console.error("Error during logout:", error);
   }
 }
 
@@ -57,7 +62,7 @@ function toggle() {
 }
 </script>
 
-  <style scoped>
+<style scoped>
 @import url(https://fonts.googleapis.com/css?family=Roboto:300,400);
 
 .header-wrapper {
@@ -108,7 +113,9 @@ function toggle() {
   color: #fff;
   font-size: 1.2rem;
   position: relative;
-  transition: color 0.3s, transform 0.3s;
+  transition:
+    color 0.3s,
+    transform 0.3s;
 }
 
 .header-options li:before {
@@ -132,20 +139,20 @@ function toggle() {
 }
 
 .custom-link {
-  color: #fff; 
-  text-decoration: none; 
+  color: #fff;
+  text-decoration: none;
 }
 
-.custom-link:focus, .custom-link:active {
+.custom-link:focus,
+.custom-link:active {
   outline: none;
 }
 
 @media screen and (max-width: 800px) {
-
   .bar-container {
-  display: inline-block;
-  cursor: pointer;
-}
+    display: inline-block;
+    cursor: pointer;
+  }
 
   .menu-icon {
     display: block;
@@ -159,39 +166,32 @@ function toggle() {
     display: flex;
   }
 }
- 
+
 @media screen and (max-width: 400px) {
   .imgLogo {
-  height: 2rem;
-}
-.header-title {
-  color: #fff;
-  font-size: 1.2rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
+    height: 2rem;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
 
+  .bar1,
+  .bar2,
+  .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 5px 0;
+    margin-right: 5vh;
+  }
 
-
-.bar1,
-.bar2,
-.bar3 {
-  width: 35px;
-  height: 5px;
-  background-color: #333;
-  margin: 5px 0;
-  margin-right: 5vh;
-}
-
-.show-menu {
+  .show-menu {
     display: flex;
     flex-direction: column;
+  }
 }
-
-}
-
-
-
 </style>
-  
