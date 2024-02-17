@@ -6,7 +6,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "prettier --write --ignore-path .gitignore ."
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -17,6 +18,7 @@
     "axios": "^1.4.0",
     "cookie-js": "^0.0.1",
     "cookie-universal-nuxt": "^2.2.2",
-    "js-cookie": "^3.0.5"
+    "js-cookie": "^3.0.5",
+    "prettier": "^3.2.5"
   }
 }
